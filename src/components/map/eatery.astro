@@ -1,0 +1,34 @@
+---
+interface Props {
+  id: number;
+  name: string;
+  cuisine: string;
+  address: string;
+}
+
+const { id, name, cuisine, address } = Astro.props;
+---
+
+<div id={`eatery-${id}`} class="eatery">
+  <img src={`/assets/${id}.jpg`} alt={name} />
+  <h3>{name}</h3>
+  <p>{cuisine}</p>
+  <p>{address}</p>
+</div>
+
+<style>
+  .eatery {
+    background-color: transparent;
+    border-bottom: 1px solid #ccc;
+    padding: 10px;
+    margin: 5px;
+  }
+
+  .eatery img {
+    height: 250px;
+    width: 100%;
+    object-fit: cover;
+    background-color: aliceblue;
+    display: block;
+  }
+</style>
