@@ -1,16 +1,17 @@
 // src/pages/api/eateries.ts
-// Flyt denne fil til src/pages/api/ i dit Astro projekt
-
 import type { APIRoute } from "astro";
 import mysql from "mysql2/promise";
 
-// Connection til din Cloud SQL
+// Connection til din Cloud SQL - brug environment variables
 const db = await mysql.createPool({
-  host: "34.175.101.196",
-  port: 3306,
-  user: "root",
-  password: 'MvbsQB4|"Otq$\\d8',
-  database: "munchmap",
+  host: import.meta.env.DB_HOST || "34.175.101.196",
+  port: parseInt(import.meta.env.DB_PORT || "3306"),
+  user: import.meta.env.DB_USER || "root",
+  password: import.meta.env.DB_PASSWORD || 'MvbsQB4|"Otq$\\d8',
+  database: import.meta.env.DB_NAME || "munchmap",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
 export const GET: APIRoute = async () => {
