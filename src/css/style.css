@@ -1,0 +1,94 @@
+:root {
+  /* ---------------------- */
+  /*        BUN COLORS      */
+  /* ---------------------- */
+  --bun-1: #f7f4e8;
+  --bun-2: #f1edd8;
+  --bun-3: #e4dcb2;
+  --bun-base: #d6ca88;
+  --bun-4: #b2a874;
+  --bun-5: #8f875d;
+  --bun-6: #47432e;
+
+  /* ---------------------- */
+  /*      CHEESE COLORS     */
+  /* ---------------------- */
+  --cheese-1: #fdfdef;
+  --cheese-2: #fbfbdb;
+  --cheese-3: #fafacb;
+  --cheese-base: #f7f7b1;
+  --cheese-4: #cece94;
+  --cheese-5: #7c7c59;
+  --cheese-6: #313123;
+
+  /* ---------------------- */
+  /*     KETCHUP COLORS     */
+  /* ---------------------- */
+  --ketchup-1: #e6d1d3;
+  --ketchup-2: #c18890;
+  --ketchup-3: #983e46;
+  --ketchup-base: #83172b;
+  --ketchup-4: #6d131c;
+  --ketchup-5: #570f16;
+  --ketchup-6: #2c080b;
+
+  /* ---------------------- */
+  /*       PATTY COLORS     */
+  /* ---------------------- */
+  --patty-1: #fdfeed;
+  --patty-2: #fad8d2;
+  --patty-3: #f8cbc2;
+  --patty-base: #f4b1ab;
+  --patty-4: #cb9489;
+  --patty-5: #a3766d;
+  --patty-6: #513b37;
+
+  /* ---------------------- */
+  /*      LETTUCE COLORS    */
+  /* ---------------------- */
+  --lettuce-1: #d0e9d7;
+  --lettuce-2: #8ac79b;
+  --lettuce-3: #62b474;
+  --lettuce-base: #148f3a;
+  --lettuce-4: #11772e;
+  --lettuce-5: #0a481c;
+  --lettuce-6: #073012;
+}
+
+h1 {
+  margin: 0;
+  font-family: "Commissioner", sans-serif;
+  font-size: 60px;
+  color: var(--ketchup-5);
+  font-weight: 600;
+}
+
+h2 {
+  margin: 0;
+  font-family: "Commissioner", sans-serif;
+  font-size: 36px;
+  color: var(--ketchup-5);
+  font-weight: 600;
+}
+
+h3 {
+  margin: 0;
+  font-family: "Commissioner", sans-serif;
+  font-size: 24px;
+  color: var(--ketchup-5);
+  font-weight: 600;
+}
+
+h4 {
+  font-family: "milky coffee", sans-serif;
+  font-size: 36px;
+  color: var(--ketchup-5);
+  font-weight: 600;
+}
+
+p {
+  margin: 0;
+  font-family: "Commissioner", sans-serif;
+  font-size: 16px;
+  color: #333;
+}

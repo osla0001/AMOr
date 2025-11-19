@@ -1,0 +1,385 @@
+---
+// index.astro - Astro version af MunchMap
+//@ts-nocheck
+import Layout from "../layouts/Layout.astro";
+import Eatery from "../components/map/eatery.astro";
+
+const title = "AMOr - Map";
+
+// Hent eateries data server-side for initial render
+let initialEateries = [];
+try {
+  // I development bruges localhost, i production skal du bruge din faktiske URL
+  const baseUrl = import.meta.env.DEV
+    ? "http://localhost:4321"
+    : Astro.url.origin;
+
+  const response = await fetch(`${baseUrl}/api/eateries`);
+  if (response.ok) {
+    initialEateries = await response.json();
+  }
+} catch (error) {
+  console.error("Failed to fetch eateries server-side:", error);
+}
+---
+
+<Layout title={title} includeGoogleMaps={true}>
+  <section id="map"></section>
+  <section id="catalog">
+    {
+      initialEateries.map((eatery) => (
+        <Eatery
+          id={eatery.id}
+          name={eatery.name}
+          cuisine={eatery.cus_name}
+          address={eatery.address}
+        />
+      ))
+    }
+  </section>
+</Layout>
+
+<script is:inline>
+  let map;
+  let eateries = [];
+  let isDataLoaded = false;
+
+  // Hent data fra localStorage eller database med 1 minut cache
+  async function loadEateries() {
+    const CACHE_KEY = "munchmap_eateries";
+    const CACHE_TIMESTAMP_KEY = "munchmap_timestamp";
+    const CACHE_DURATION = 1 * 60 * 1000; // 1 minut i millisekunder
+
+    try {
+      // Tjek localStorage først
+      const cachedData = localStorage.getItem(CACHE_KEY);
+      const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      const now = Date.now();
+
+      // Hvis vi har cached data der er mindre end 10 minutter gammel
+      if (
+        cachedData &&
+        cachedTimestamp &&
+        now - parseInt(cachedTimestamp) < CACHE_DURATION
+      ) {
+        console.log("Using cached eateries data");
+        eateries = JSON.parse(cachedData);
+        isDataLoaded = true;
+        populateCatalog();
+        return eateries;
+      }
+
+      // Ellers hent fra database
+      console.log("Fetching fresh eateries data from database");
+
+      // Brug Astro's egen API endpoint med cache-busting
+      const response = await fetch("/api/eateries", {
+        cache: "no-cache",
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      eateries = await response.json();
+
+      // Debug: Log første eatery for at se strukturen
+      console.log("First eatery from API:", eateries[0]);
+
+      // Gem i localStorage
+      localStorage.setItem(CACHE_KEY, JSON.stringify(eateries));
+      localStorage.setItem(CACHE_TIMESTAMP_KEY, now.toString());
+
+      isDataLoaded = true;
+      console.log("Eateries loaded and cached:", eateries);
+      populateCatalog();
+      return eateries;
+    } catch (error) {
+      console.error("Fejl ved hentning af restauranter:", error);
+      isDataLoaded = false;
+      return [];
+    }
+  }
+
+  // Tving opdatering af data (ignorér cache)
+  function forceRefresh() {
+    localStorage.removeItem("munchmap_eateries");
+    localStorage.removeItem("munchmap_timestamp");
+    loadEateries();
+  }
+
+  // Opret catalog indhold med eateries data
+  function populateCatalog() {
+    const catalog = document.getElementById("catalog");
+    if (!catalog) return;
+
+    // Hvis der allerede er server-rendered eateries, skal vi ikke gøre noget
+    const existingEateries = catalog.querySelectorAll(".eatery");
+    if (existingEateries.length > 0) {
+      console.log(
+        "Using server-rendered eateries, skipping dynamic population",
+      );
+      return;
+    }
+  }
+
+  // Initialiser app når DOM er klar
+  async function initializeApp() {
+    console.log("Initializing app...");
+    await initMap();
+  }
+
+  async function initMap() {
+    console.log("initMap called");
+    const mapElement = document.getElementById("map");
+    if (!mapElement) {
+      console.error("Map element not found!");
+      return;
+    }
+    console.log("Map element found:", mapElement);
+
+    // Tjek om Google Maps er loaded
+    if (typeof google === "undefined") {
+      console.error("Google Maps API not loaded yet!");
+      return;
+    }
+    console.log("Google Maps API available");
+
+    // Opret kortet uden UI-elementer
+    map = new google.maps.Map(mapElement, {
+      center: { lat: 38.77778868576236, lng: -9.102223091021775 },
+      zoom: 17,
+      mapId: "adbe73a1912265dc957e60cd",
+      disableDefaultUI: true,
+      clickableIcons: false,
+      keyboardShortcuts: false,
+      gestureHandling: "greedy",
+      scrollwheel: true,
+      draggable: true,
+    });
+
+    console.log("Map created, loading eateries...");
+
+    // Hent data og opret markører
+    await loadEateries();
+
+    if (!isDataLoaded || eateries.length === 0) {
+      console.error("Failed to load eatery data");
+      return;
+    }
+
+    console.log("Creating markers for", eateries.length, "eateries");
+
+    // Konverter til places format
+    const places = eateries.map((eatery) => ({
+      lat: eatery.coordinates.latitude,
+      lng: eatery.coordinates.longitude,
+      title: eatery.name,
+      id: eatery.id,
+      data: eatery,
+    }));
+
+    // Opret custom markører
+    places.forEach((place) => {
+      // Custom ikon
+      const customIcon = document.createElement("img");
+      customIcon.src = "/pin.png";
+      customIcon.style.width = "50px";
+      customIcon.style.height = "50px";
+      customIcon.style.cursor = "pointer";
+      customIcon.style.transition = "all 0.3s ease";
+
+      // Container for markør og tooltip
+      const markerContainer = document.createElement("div");
+      markerContainer.style.position = "relative";
+      markerContainer.style.display = "inline-block";
+      markerContainer.id = `marker-${place.id}`;
+
+      // Tooltip
+      const tooltip = document.createElement("div");
+      tooltip.innerHTML = place.title;
+      tooltip.style.position = "fixed";
+      tooltip.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+      tooltip.style.color = "white";
+      tooltip.style.padding = "8px 12px";
+      tooltip.style.borderRadius = "4px";
+      tooltip.style.fontSize = "20px";
+      tooltip.style.fontFamily = "'Milky Coffee', sans-serif";
+      tooltip.style.whiteSpace = "nowrap";
+      tooltip.style.display = "none";
+      tooltip.style.zIndex = "99999";
+      tooltip.style.pointerEvents = "none";
+      tooltip.style.transition = "all 0.3s ease";
+      tooltip.style.opacity = "0";
+      tooltip.style.scale = "0.8";
+
+      markerContainer.appendChild(customIcon);
+      document.body.appendChild(tooltip);
+
+      // Hover-effekter
+      markerContainer.addEventListener("mouseenter", () => {
+        customIcon.style.width = "60px";
+        customIcon.style.height = "60px";
+        customIcon.style.transform = "scale(1.1)";
+
+        // Beregn position for fixed tooltip
+        const rect = customIcon.getBoundingClientRect();
+        tooltip.style.left = rect.right + 5 + "px";
+        tooltip.style.top = rect.top + rect.height / 2 + "px";
+        tooltip.style.transform = "translateY(-50%)";
+
+        tooltip.style.display = "block";
+        setTimeout(() => {
+          tooltip.style.opacity = "1";
+          tooltip.style.scale = "1";
+        }, 10);
+      });
+
+      markerContainer.addEventListener("mouseleave", () => {
+        customIcon.style.width = "50px";
+        customIcon.style.height = "50px";
+        customIcon.style.transform = "scale(1)";
+        tooltip.style.opacity = "0";
+        tooltip.style.scale = "0.8";
+        setTimeout(() => {
+          tooltip.style.display = "none";
+        }, 300);
+      });
+
+      // Click event - smooth transition til markøren og scroll til catalog
+      markerContainer.addEventListener("click", () => {
+        map.panTo({ lat: place.lat, lng: place.lng });
+
+        // Scroll til den valgte eatery i catalog
+        moveEateryToTop(place.id);
+
+        // Smooth zoom transition
+        setTimeout(() => {
+          const currentZoom = map.getZoom();
+          const targetZoom = 17;
+
+          if (currentZoom !== targetZoom) {
+            const zoomStep = currentZoom < targetZoom ? 0.5 : -0.5;
+            const zoomInterval = setInterval(() => {
+              const newZoom = map.getZoom() + zoomStep;
+
+              if (
+                (zoomStep > 0 && newZoom >= targetZoom) ||
+                (zoomStep < 0 && newZoom <= targetZoom)
+              ) {
+                map.setZoom(targetZoom);
+                clearInterval(zoomInterval);
+              } else {
+                map.setZoom(newZoom);
+              }
+            }, 100);
+          }
+        }, 200);
+      });
+
+      // Opret markør
+      new google.maps.marker.AdvancedMarkerElement({
+        map: map,
+        position: { lat: place.lat, lng: place.lng },
+        content: markerContainer,
+      });
+    });
+  }
+
+  // Scroll til den valgte eatery i catalog
+  function moveEateryToTop(eateryId) {
+    const catalog = document.getElementById("catalog");
+    const eateryElement = document.getElementById(`eatery-${eateryId}`);
+
+    if (eateryElement && catalog) {
+      // Tilføj highlight-effekt
+      eateryElement.style.backgroundColor = "transparent";
+      eateryElement.style.transition = "background-color 0.5s ease";
+
+      // Smooth scroll så elementet kommer til tops
+      eateryElement.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+
+      // Fjern highlight efter et stykke tid
+      setTimeout(() => {
+        eateryElement.style.backgroundColor = "transparent";
+      }, 1000);
+    }
+  }
+
+  // Eksporter funktionen til global scope for Google Maps callback
+  window.initializeApp = initializeApp;
+
+  // Backup: Hvis Google Maps er allerede loaded, kør initializeApp med det samme
+  if (typeof google !== "undefined" && google.maps) {
+    console.log("Google Maps already loaded, initializing now");
+    initializeApp();
+  }
+
+  // Ekstra backup: Hvis callback ikke kaldes inden 3 sekunder, prøv at initialisere
+  setTimeout(() => {
+    if (!map && typeof google !== "undefined" && google.maps) {
+      console.log("Callback not called, initializing manually");
+      initializeApp();
+    }
+  }, 3000);
+</script>
+
+<style>
+  @import url("https://fonts.cdnfonts.com/css/milky-coffee");
+
+  #map {
+    height: 100vh;
+    width: 65%;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    max-height: 100%;
+    overflow-y: hidden;
+  }
+
+  /* Filter kun på Google Maps canvas - ikke på markører */
+  #map :global(.gm-style > div:first-child) {
+    position: relative;
+  }
+
+  #map :global(.gm-style > div:first-child::after) {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #fdefed;
+    mix-blend-mode: darken;
+    opacity: 1;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  #catalog {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 35%;
+    height: 100%;
+    background-color: var(--bun-1);
+    z-index: 2;
+    overflow-y: auto;
+  }
+</style>
