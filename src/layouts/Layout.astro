@@ -4,7 +4,7 @@ interface Props {
   includeGoogleMaps?: boolean;
 }
 
-const { title = "MunchMap", includeGoogleMaps = false } = Astro.props;
+const { title, includeGoogleMaps = false } = Astro.props;
 import "../css/style.css";
 ---
 
@@ -26,7 +26,7 @@ import "../css/style.css";
       rel="stylesheet"
     />
 
-    <!-- Google Maps (kun hvis nødvendig) -->
+    <!-- Google Maps -->
     {
       includeGoogleMaps && (
         <script
@@ -36,6 +36,23 @@ import "../css/style.css";
         />
       )
     }
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicon/favicon-96x96.png"
+      sizes="96x96"
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon/favicon.ico" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/favicon/apple-touch-icon.png"
+    />
+    <meta name="apple-mobile-web-app-title" content="AMOr" />
+    <link rel="manifest" href="/favicon/site.webmanifest" />
   </head>
   <body>
     <slot />

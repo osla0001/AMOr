@@ -4,8 +4,6 @@
 import Layout from "../layouts/Layout.astro";
 import Eatery from "../components/map/eatery.astro";
 
-const title = "AMOr - Map";
-
 // Hent eateries data server-side for initial render
 let initialEateries = [];
 try {
@@ -23,7 +21,7 @@ try {
 }
 ---
 
-<Layout title={title} includeGoogleMaps={true}>
+<Layout title="AMOr - Map" includeGoogleMaps={true}>
   <section id="map"></section>
   <section id="catalog">
     {
@@ -186,7 +184,7 @@ try {
     places.forEach((place) => {
       // Custom ikon
       const customIcon = document.createElement("img");
-      customIcon.src = "/pin.png";
+      customIcon.src = "/icons/pink-pin.png";
       customIcon.style.width = "50px";
       customIcon.style.height = "50px";
       customIcon.style.cursor = "pointer";

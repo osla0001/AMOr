@@ -1,8 +1,42 @@
 ---
+//@ts-nocheck
 import Layout from "../layouts/Layout.astro";
+import Button from "../components/Button.astro";
+import SoMe from "../components/SoMe.astro";
 
+const title = "AMOr";
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
-<Layout />
+<Layout title="AMOr - Home">
+  <section>
+    <Button color="var(--lettuce-5)" href="/">CTA</Button>
+    <Button color="var(--ketchup-base)" href="/">Button</Button>
+    <Button color="var(--bun-6)" href="/">Button</Button>
+    <SoMe
+      color="var(--ketchup-base)"
+      href="https://facebook.com/"
+      icon="facebook"
+    />
+    <SoMe
+      color="var(--ketchup-base)"
+      href="https://instagram.com/"
+      icon="instagram"
+    />
+    <SoMe
+      color="var(--ketchup-base)"
+      href="https://linkedin.com/"
+      icon="linkedin"
+    />
+    <SoMe color="var(--ketchup-base)" href="https://x.com/" icon="x" />
+  </section>
+</Layout>
+
+<style>
+  section {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+  }
+</style>
