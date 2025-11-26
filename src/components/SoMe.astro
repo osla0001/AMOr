@@ -12,7 +12,7 @@ const iconPaths = {
   facebook:
     "M33.55,80v-36.5h-12.17v-12.17h12.17v-6.53c0-12.37,6.03-17.8,16.31-17.8,4.92,0,7.53.36,8.76.53v11.63h-7.01c-4.36,0-5.89,2.3-5.89,6.97v5.2h12.79l-1.74,12.17h-11.05v36.5h-12.17Z",
   instagram: {
-    circle: "M62,18c2.76,0,5,2.24,5,5s-2.24,5-5,5-5-2.24-5-5,2.24-5,5-5Z",
+    circle: { cx: "64", cy: "16", r: "5" },
     path: "M39,18c-12.7,0-23,10.3-23,23s10.3,23,23,23,23-10.3,23-23-10.3-23-23-23ZM39,57c-8.84,0-16-7.16-16-16s7.16-16,16-16,16,7.16,16,16-7.16,16-16,16Z",
   },
   linkedin:
@@ -26,7 +26,12 @@ const iconPaths = {
     {
       icon === "instagram" ? (
         <>
-          <path d={iconPaths[icon].circle} fill={color} />
+          <circle
+            cx={iconPaths[icon].circle.cx}
+            cy={iconPaths[icon].circle.cy}
+            r={iconPaths[icon].circle.r}
+            fill={color}
+          />
           <path d={iconPaths[icon].path} fill={color} />
         </>
       ) : (
@@ -62,7 +67,8 @@ const iconPaths = {
     transition: background-color 0.3s ease;
   }
 
-  a:hover path {
+  a:hover path,
+  a:hover circle {
     fill: white !important;
   }
 

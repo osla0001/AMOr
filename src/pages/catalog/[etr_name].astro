@@ -1,0 +1,240 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import mysql from "mysql2/promise";
+
+// getStaticPaths is required for dynamic routes in Astro
+export async function getStaticPaths() {
+  // Connection til database for at hente alle restauranter
+  const db = await mysql.createPool({
+    host: import.meta.env.DB_HOST || "34.175.101.196",
+    port: parseInt(import.meta.env.DB_PORT || "3306"),
+    user: import.meta.env.DB_USER || "root",
+    password: import.meta.env.DB_PASSWORD || 'MvbsQB4|"Otq$\\d8',
+    database: import.meta.env.DB_NAME || "munchmap",
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+  });
+
+  const [rows] = await db.query(`
+    SELECT DISTINCT e.etr_name
+    FROM eatery e
+  `);
+
+  await db.end();
+
+  // Generer en path for hver restaurant
+  return (rows as any[]).map((row) => ({
+    params: { etr_name: row.etr_name.replace(/\s+/g, "") },
+  }));
+}
+
+// Hent etr_name fra URL parameteren
+const { etr_name } = Astro.params;
+
+// Connection til din Cloud SQL database
+const db = await mysql.createPool({
+  host: import.meta.env.DB_HOST || "34.175.101.196",
+  port: parseInt(import.meta.env.DB_PORT || "3306"),
+  user: import.meta.env.DB_USER || "root",
+  password: import.meta.env.DB_PASSWORD || 'MvbsQB4|"Otq$\\d8',
+  database: import.meta.env.DB_NAME || "munchmap",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});
+
+// Hent data for den specifikke restaurant
+// Vi skal matche navnet uden mellemrum mod databasen
+const [rows] = await db.query(
+  `
+  SELECT 
+    e.etr_id, 
+    e.etr_name, 
+    e.etr_coordinates,
+    e.etr_address,
+    c.cus_name
+  FROM eatery e
+  LEFT JOIN eatery_cuisine ec ON e.etr_id = ec.etrc_etr_id
+  LEFT JOIN cuisine c ON ec.etrc_cus_id = c.cus_id
+  WHERE REPLACE(e.etr_name, ' ', '') = ?
+`,
+  [etr_name],
+);
+
+await db.end();
+
+// Hvis ingen restaurant findes, vis 404
+if (!rows || (rows as any[]).length === 0) {
+  return Astro.redirect("/404");
+}
+
+// Gruppér cuisines for restauranten
+const cuisines: string[] = [];
+const firstRow = (rows as any[])[0];
+
+(rows as any[]).forEach((row) => {
+  if (row.cus_name && !cuisines.includes(row.cus_name)) {
+    cuisines.push(row.cus_name);
+  }
+});
+
+const eatery = {
+  id: firstRow.etr_id,
+  name: firstRow.etr_name,
+  address: firstRow.etr_address || "Ingen adresse",
+  coordinates: firstRow.etr_coordinates,
+  cuisines: cuisines.length > 0 ? cuisines.join(", ") : "Ikke angivet",
+};
+
+const [lat, lng] = eatery.coordinates
+  ? eatery.coordinates.split(",").map(Number)
+  : [0, 0];
+---
+
+<Layout title={eatery.name}>
+  <main>
+    <div class="container">
+      <a href="/map" class="back-link">← Tilbage til kortet</a>
+
+      <div class="eatery-detail">
+        <div class="image-container">
+          <img src={`/eatery/${eatery.id}.png`} alt={eatery.name} />
+        </div>
+
+        <div class="info-container">
+          <h1>{eatery.name}</h1>
+
+          <div class="info-section">
+            <h2>Køkken</h2>
+            <p>{eatery.cuisines}</p>
+          </div>
+
+          <div class="info-section">
+            <h2>Adresse</h2>
+            <p>{eatery.address}</p>
+          </div>
+
+          <div class="map-container">
+            <h2>Placering</h2>
+            <div id="map"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .container {
+    width: 100%;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 2rem;
+    color: #0066cc;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .eatery-detail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .image-container img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .info-container h1 {
+    margin-top: 0;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .info-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .info-section h2 {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+  }
+
+  .info-section p {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  .info-section a {
+    color: #0066cc;
+    text-decoration: none;
+  }
+
+  .info-section a:hover {
+    text-decoration: underline;
+  }
+
+  .map-container {
+    margin-top: 2rem;
+  }
+
+  #map {
+    width: 100%;
+    height: 300px;
+    border-radius: 8px;
+    background-color: #f0f0f0;
+  }
+
+  @media (max-width: 768px) {
+    .eatery-detail {
+      grid-template-columns: 1fr;
+    }
+
+    .info-container h1 {
+      font-size: 2rem;
+    }
+  }
+</style>
+
+<script define:vars={{ lat, lng, name: eatery.name }}>
+  // Initialiser Google Maps for denne restaurant
+  function initMap() {
+    const location = { lat, lng };
+
+    const map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 15,
+      center: location,
+      mapId: "DEMO_MAP_ID",
+    });
+
+    new google.maps.marker.AdvancedMarkerElement({
+      map: map,
+      position: location,
+      title: name,
+    });
+  }
+
+  // Wait for Google Maps API to be loaded
+  if (window.google && window.google.maps) {
+    initMap();
+  } else {
+    window.initMap = initMap;
+  }
+</script>

@@ -1,0 +1,40 @@
+---
+const { url } = Astro.props;
+---
+
+<div class="menu">
+  <a href={url}>
+    <p>
+      <slot />
+    </p>
+  </a>
+</div>
+
+<style>
+  .menu {
+    display: inline-block;
+    margin: 0 10px;
+  }
+
+  p {
+    color: var(--ketchup-4);
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  p::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--ketchup-4);
+    transition: width 0.3s ease;
+  }
+
+  p:hover::after {
+    width: 100%;
+  }
+</style>

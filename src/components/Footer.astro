@@ -1,0 +1,71 @@
+---
+import SoMe from "./SoMe.astro";
+---
+
+<footer>
+  <div class="somes">
+    <SoMe
+      color="var(--ketchup-base)"
+      href="https://facebook.com/"
+      icon="facebook"
+    />
+    <SoMe
+      color="var(--ketchup-base)"
+      href="https://instagram.com/"
+      icon="instagram"
+    />
+    <SoMe
+      color="var(--ketchup-base)"
+      href="https://linkedin.com/"
+      icon="linkedin"
+    />
+    <SoMe color="var(--ketchup-base)" href="https://x.com/" icon="x" />
+  </div>
+  <div class="center-section">
+    <h1>AMOr</h1>
+  </div>
+  <div class="right-section">
+    <img src="/logo.svg" alt="AMOr logo" class="logo" />
+    <p style="color: var(--ketchup-base);">AMOr © 2025</p>
+  </div>
+</footer>
+
+<style>
+  footer {
+    background-color: var(--bun-3);
+    height: 20%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2%;
+    border-top: 2px solid var(--ketchup-3);
+  }
+
+  .somes,
+  .center-section,
+  .right-section {
+    flex: 1;
+  }
+
+  .center-section {
+    display: flex;
+    justify-content: center;
+  }
+
+  .right-section {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .logo {
+    height: 60px;
+  }
+
+  .somes {
+    display: flex;
+    gap: 1rem;
+  }
+</style>

@@ -57,9 +57,9 @@
 
 h1 {
   margin: 0;
-  font-family: "Commissioner", sans-serif;
+  font-family: "Milky Coffee", sans-serif;
   font-size: 60px;
-  color: var(--ketchup-5);
+  color: var(--ketchup-base);
   font-weight: 600;
 }
 
@@ -80,7 +80,7 @@ h3 {
 }
 
 h4 {
-  font-family: "milky coffee", sans-serif;
+  font-family: "Milky Coffee", sans-serif;
   font-size: 36px;
   color: var(--ketchup-5);
   font-weight: 600;

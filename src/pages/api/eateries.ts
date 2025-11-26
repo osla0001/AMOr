@@ -2,7 +2,7 @@
 import type { APIRoute } from "astro";
 import mysql from "mysql2/promise";
 
-// Connection til din Cloud SQL - brug environment variables
+// Connection to Cloud SQL - use environment variables
 const db = await mysql.createPool({
   host: import.meta.env.DB_HOST || "34.175.101.196",
   port: parseInt(import.meta.env.DB_PORT || "3306"),
@@ -28,7 +28,7 @@ export const GET: APIRoute = async () => {
       LEFT JOIN cuisine c ON ec.etrc_cus_id = c.cus_id
     `);
 
-    // Gruppér cuisines for hver restaurant
+    // Group cuisines for each restaurant
     const eateriesMap = new Map();
 
     (rows as any[]).forEach((row) => {
@@ -37,13 +37,13 @@ export const GET: APIRoute = async () => {
         eateriesMap.set(row.etr_id, {
           id: row.etr_id,
           name: row.etr_name,
-          address: row.etr_address || "Ingen adresse",
+          address: row.etr_address || "No address",
           cuisines: [],
           coordinates: { latitude: lat, longitude: lng },
         });
       }
 
-      // Tilføj cuisine hvis den findes og ikke allerede er tilføjet
+      // Add cuisine if it exists and hasn't been added already
       if (
         row.cus_name &&
         !eateriesMap.get(row.etr_id).cuisines.includes(row.cus_name)
@@ -52,10 +52,10 @@ export const GET: APIRoute = async () => {
       }
     });
 
-    // Konverter til array og lav cuisines til string
+    // Convert to array and format cuisines as string
     const eateries = Array.from(eateriesMap.values()).map((e) => ({
       ...e,
-      cus_name: e.cuisines.length > 0 ? e.cuisines.join(", ") : "Ikke angivet",
+      cus_name: e.cuisines.length > 0 ? e.cuisines.join(", ") : "Not specified",
       cuisines: undefined,
     }));
 
