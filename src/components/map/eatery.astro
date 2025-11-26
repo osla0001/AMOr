@@ -7,14 +7,17 @@ interface Props {
 }
 
 const { id, name, cuisine, address } = Astro.props;
+
+// Create URL-friendly name by removing spaces
+const urlName = name.replace(/\s+/g, "");
 ---
 
-<div id={`eatery-${id}`} class="eatery">
-  <img src={`/assets/${id}.jpg`} alt={name} />
+<a href={`/catalog/${urlName}`} id={`eatery-${id}`} class="eatery">
+  <img src={`/eatery/${id}.png`} alt={name} />
   <h3>{name}</h3>
   <p>{cuisine}</p>
   <p>{address}</p>
-</div>
+</a>
 
 <style>
   .eatery {
@@ -22,6 +25,15 @@ const { id, name, cuisine, address } = Astro.props;
     border-bottom: 1px solid #ccc;
     padding: 10px;
     margin: 5px;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: background-color 0.2s ease;
+  }
+
+  .eatery:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    cursor: pointer;
   }
 
   .eatery img {

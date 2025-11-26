@@ -1,11 +1,11 @@
 ---
-// index.astro - Astro version af MunchMap
+// index.astro - Astro version of MunchMap
 //@ts-nocheck
 import Layout from "../layouts/Layout.astro";
 import Eatery from "../components/map/eatery.astro";
 import mysql from "mysql2/promise";
 
-// Hent eateries data direkte fra database server-side
+// Fetch eateries data directly from database server-side
 let initialEateries = [];
 try {
   // Opret database connection
@@ -32,7 +32,7 @@ try {
     LEFT JOIN cuisine c ON ec.etrc_cus_id = c.cus_id
   `);
 
-  // Gruppér cuisines for hver restaurant
+  // Group cuisines for each restaurant
   const eateriesMap = new Map();
 
   (rows as any[]).forEach((row) => {
@@ -67,19 +67,21 @@ try {
 ---
 
 <Layout title="AMOr - Map" includeGoogleMaps={true}>
-  <section id="map"></section>
-  <section id="catalog">
-    {
-      initialEateries.map((eatery) => (
-        <Eatery
-          id={eatery.id}
-          name={eatery.name}
-          cuisine={eatery.cus_name}
-          address={eatery.address}
-        />
-      ))
-    }
-  </section>
+  <main>
+    <section id="catalog">
+      {
+        initialEateries.map((eatery) => (
+          <Eatery
+            id={eatery.id}
+            name={eatery.name}
+            cuisine={eatery.cus_name}
+            address={eatery.address}
+          />
+        ))
+      }
+    </section>
+    <section id="map"></section>
+  </main>
 </Layout>
 
 <script is:inline>
@@ -87,14 +89,14 @@ try {
   let eateries = [];
   let isDataLoaded = false;
 
-  // Hent data fra localStorage eller database med 1 minut cache
+  // Fetch data from localStorage or database with 1 minute cache
   async function loadEateries() {
     const CACHE_KEY = "munchmap_eateries";
     const CACHE_TIMESTAMP_KEY = "munchmap_timestamp";
-    const CACHE_DURATION = 1 * 60 * 1000; // 1 minut i millisekunder
+    const CACHE_DURATION = 1 * 60 * 1000; // 1 minute in milliseconds
 
     try {
-      // Tjek localStorage først
+      // Check localStorage first
       const cachedData = localStorage.getItem(CACHE_KEY);
       const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
       const now = Date.now();
@@ -169,7 +171,7 @@ try {
     }
   }
 
-  // Initialiser app når DOM er klar
+  // Initialize app when DOM is ready
   async function initializeApp() {
     console.log("Initializing app...");
     await initMap();
@@ -206,7 +208,7 @@ try {
 
     console.log("Map created, loading eateries...");
 
-    // Hent data og opret markører
+    // Fetch data and create markers
     await loadEateries();
 
     if (!isDataLoaded || eateries.length === 0) {
@@ -216,7 +218,7 @@ try {
 
     console.log("Creating markers for", eateries.length, "eateries");
 
-    // Konverter til places format
+    // Convert to places format
     const places = eateries.map((eatery) => ({
       lat: eatery.coordinates.latitude,
       lng: eatery.coordinates.longitude,
@@ -225,9 +227,9 @@ try {
       data: eatery,
     }));
 
-    // Opret custom markører
+    // Create custom markers
     places.forEach((place) => {
-      // Custom ikon
+      // Custom icon
       const customIcon = document.createElement("img");
       customIcon.src = "/icons/pink-pin.png";
       customIcon.style.width = "50px";
@@ -235,7 +237,7 @@ try {
       customIcon.style.cursor = "pointer";
       customIcon.style.transition = "all 0.3s ease";
 
-      // Container for markør og tooltip
+      // Container for marker and tooltip
       const markerContainer = document.createElement("div");
       markerContainer.style.position = "relative";
       markerContainer.style.display = "inline-block";
@@ -348,23 +350,23 @@ try {
         block: "start",
       });
 
-      // Fjern highlight efter et stykke tid
+      // Remove highlight after a while
       setTimeout(() => {
         eateryElement.style.backgroundColor = "transparent";
       }, 1000);
     }
   }
 
-  // Eksporter funktionen til global scope for Google Maps callback
+  // Export function to global scope for Google Maps callback
   window.initializeApp = initializeApp;
 
-  // Backup: Hvis Google Maps er allerede loaded, kør initializeApp med det samme
+  // Backup: If Google Maps is already loaded, run initializeApp immediately
   if (typeof google !== "undefined" && google.maps) {
     console.log("Google Maps already loaded, initializing now");
     initializeApp();
   }
 
-  // Ekstra backup: Hvis callback ikke kaldes inden 3 sekunder, prøv at initialisere
+  // Extra backup: If callback isn't called within 3 seconds, try to initialize
   setTimeout(() => {
     if (!map && typeof google !== "undefined" && google.maps) {
       console.log("Callback not called, initializing manually");
@@ -376,24 +378,24 @@ try {
 <style>
   @import url("https://fonts.cdnfonts.com/css/milky-coffee");
 
+  :global(main) {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 10vh);
+    overflow: hidden;
+  }
+
   #map {
-    height: 100vh;
-    width: 65%;
-    position: absolute;
-    right: 0;
-    top: 0;
-  }
-
-  html,
-  body {
     height: 100%;
-    margin: 0;
-    padding: 0;
+    width: 65%;
+    position: relative;
   }
 
-  body {
-    max-height: 100%;
-    overflow-y: hidden;
+  #catalog {
+    width: 35%;
+    height: 100%;
+    background-color: var(--bun-1);
+    overflow-y: auto;
   }
 
   /* Filter kun på Google Maps canvas - ikke på markører */
@@ -413,16 +415,5 @@ try {
     opacity: 1;
     pointer-events: none;
     z-index: 1;
-  }
-
-  #catalog {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 35%;
-    height: 100%;
-    background-color: var(--bun-1);
-    z-index: 2;
-    overflow-y: auto;
   }
 </style>
