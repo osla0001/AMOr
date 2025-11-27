@@ -11,12 +11,15 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     // Read data from form submission
     const formData = await request.formData();
-    const name = formData.get("name");
+    const topic = formData.get("topic");
+    const firstName = formData.get("firstName");
+    const lastName = formData.get("lastName");
     const email = formData.get("email");
+    const phone = formData.get("phone");
     const message = formData.get("message");
 
     // Valider data
-    if (!name || !email || !message) {
+    if (!topic || !firstName || !lastName || !email || !message) {
       return new Response(
         JSON.stringify({ error: "Alle felter skal udfyldes" }),
         {
@@ -26,16 +29,20 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
+    const fullName = `${firstName} ${lastName}`;
+
     // Send email via Resend
     const { data, error } = await resend.emails.send({
       from: "MunchMap <onboarding@resend.dev>", // Brug din verificerede domain senere
       to: ["osla0001@stud.ek.dk"], // Din Resend konto email (test mode)
       replyTo: email as string,
-      subject: `Ny support-anmodning fra ${name}`,
+      subject: `Ny support-anmodning fra ${fullName} - ${topic}`,
       html: `
         <h2>Ny support-anmodning</h2>
-        <p><strong>Fra:</strong> ${name}</p>
+        <p><strong>Emne:</strong> ${topic}</p>
+        <p><strong>Fra:</strong> ${fullName}</p>
         <p><strong>Email:</strong> ${email}</p>
+        ${phone ? `<p><strong>Telefon:</strong> ${phone}</p>` : ""}
         <p><strong>Besked:</strong></p>
         <p>${message}</p>
       `,
