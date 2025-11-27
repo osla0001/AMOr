@@ -5,43 +5,60 @@ import Layout from "../layouts/Layout.astro";
 <Layout title="AMOr - Contact">
   <main>
     <div class="container">
-      <h1>Kontakt os</h1>
-      <p>Har du spørgsmål eller brug for hjælp? Send os en besked!</p>
+      <h2>Contact us</h2>
+      <p class="subtitle">
+        Want to register your business? Have other doubts?<br />Contact us for
+        further inquires!
+      </p>
 
       <form action="/api/support" method="POST" id="contactForm">
-        <div class="form-group">
-          <label for="name">Dit navn</label>
+        <div class="custom-select">
+          <div class="select-selected">Topic</div>
+          <div class="select-items select-hide">
+            <div data-value="business">Register Business</div>
+            <div data-value="question">General Question</div>
+            <div data-value="support">Technical Support</div>
+            <div data-value="other">Other</div>
+          </div>
+          <input type="hidden" name="topic" id="topic" required />
+        </div>
+
+        <div class="form-row">
           <input
             type="text"
-            id="name"
-            name="name"
-            placeholder="Dit navn"
+            id="firstName"
+            name="firstName"
+            placeholder="First Name"
+            required
+          />
+          <input
+            type="text"
+            id="lastName"
+            name="lastName"
+            placeholder="Last Name"
             required
           />
         </div>
 
-        <div class="form-group">
-          <label for="email">Din email</label>
+        <div class="form-row">
           <input
             type="email"
             id="email"
             name="email"
-            placeholder="Din email"
+            placeholder="E-mail"
             required
           />
+          <input type="tel" id="phone" name="phone" placeholder="Phone" />
         </div>
 
-        <div class="form-group">
-          <label for="message">Din besked</label>
-          <textarea
-            id="message"
-            name="message"
-            placeholder="Skriv din besked her..."
-            rows="5"
-            required></textarea>
-        </div>
+        <textarea
+          id="message"
+          name="message"
+          placeholder="Message"
+          rows="8"
+          required></textarea>
 
-        <button type="submit">Send besked</button>
+        <button type="submit">Send Message</button>
       </form>
 
       <div id="response" class="response-message"></div>
@@ -51,105 +68,258 @@ import Layout from "../layouts/Layout.astro";
 
 <style>
   main {
-    padding: 2rem;
-    max-width: 600px;
-    margin: 0 auto;
+    background-color: var(--bun-1);
+    padding: 2rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex: 1;
   }
 
   .container {
     width: 100%;
+    max-width: 900px;
+    text-align: center;
+    padding-bottom: 2rem;
   }
 
-  h1 {
-    margin-bottom: 1rem;
-  }
-
-  p {
-    margin-bottom: 2rem;
-    color: #666;
+  .subtitle {
+    margin-bottom: 3rem;
   }
 
   form {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    text-align: left;
   }
 
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  label {
-    font-weight: 600;
-    color: #333;
-  }
-
+  select,
   input,
   textarea {
-    padding: 0.75rem;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-family: inherit;
-    transition: border-color 0.3s ease;
+    padding: 0.6rem 1.2rem;
+    border: 2px solid var(--ketchup-base);
+    border-radius: 50px;
+    font-family: "Commissioner", sans-serif;
+    font-size: 16px;
+    color: #333;
+    background-color: var(--bun-1);
+    transition: all 0.3s ease;
   }
 
+  textarea {
+    border-radius: 30px;
+    resize: none;
+    min-height: 150px;
+    max-height: 150px;
+  }
+
+  select:focus,
   input:focus,
   textarea:focus {
     outline: none;
-    border-color: #0066cc;
+    border-color: var(--ketchup-base);
   }
 
-  textarea {
-    resize: vertical;
+  /* Custom Select Dropdown */
+  .custom-select {
+    position: relative;
+    width: 100%;
+  }
+
+  .select-selected {
+    padding: 0.6rem 1.2rem;
+    border: 2px solid var(--ketchup-base);
+    border-radius: 50px;
+    font-family: "Commissioner", sans-serif;
+    font-size: 16px;
+    color: #999;
+    background-color: var(--bun-1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23333333' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1.2rem center;
+    padding-right: 2.5rem;
+  }
+
+  .select-selected.active {
+    color: #333;
+  }
+
+  .select-selected:hover {
+    border-color: var(--ketchup-base);
+  }
+
+  .select-selected::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 1.5rem;
+    transform: translateY(-50%) rotate(0deg);
+    transition: transform 0.3s ease;
+  }
+
+  .select-selected.select-arrow-active::after {
+    transform: translateY(-50%) rotate(180deg);
+  }
+
+  .select-items {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    z-index: 99;
+    background-color: var(--bun-1);
+    border: 2px solid var(--patty-base);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .select-hide {
+    display: none;
+  }
+
+  .select-items div {
+    padding: 1rem 1.5rem;
+    font-family: "Commissioner", sans-serif;
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .select-items div:hover {
+    background-color: var(--ketchup-1);
+  }
+
+  .select-items div.same-as-selected {
+    background-color: var(--ketchup-3);
+    color: white;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
   }
 
   button {
-    padding: 1rem 2rem;
-    background-color: #0066cc;
-    color: white;
-    border: none;
-    border-radius: 8px;
+    display: inline-block;
+    padding: 7px 20px;
+    background-color: transparent;
+    color: var(--ketchup-base);
+    border: 3px solid var(--ketchup-base);
+    border-radius: 10px;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+    margin-top: 1rem;
+    align-self: center;
+    max-height: 40px;
   }
 
   button:hover {
-    background-color: #0052a3;
+    background-color: var(--ketchup-base);
+    color: white;
   }
 
   button:disabled {
-    background-color: #ccc;
+    background-color: var(--bun-3);
+    border-color: var(--bun-3);
+    color: var(--patty-base);
     cursor: not-allowed;
   }
 
   .response-message {
-    margin-top: 1rem;
+    margin-top: 2rem;
     padding: 1rem;
-    border-radius: 8px;
+    border-radius: 12px;
     display: none;
   }
 
   .response-message.success {
     display: block;
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+    background-color: var(--lettuce-2);
+    color: var(--lettuce-6);
+    border: 2px solid var(--lettuce-4);
   }
 
   .response-message.error {
     display: block;
     background-color: #f8d7da;
     color: #721c24;
-    border: 1px solid #f5c6cb;
+    border: 2px solid #f5c6cb;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 2rem;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    main {
+      padding: 2rem 1rem;
+    }
   }
 </style>
 
 <script>
+  // Custom dropdown functionality
+  const customSelect = document.querySelector(".custom-select") as HTMLElement;
+  const selectSelected = document.querySelector(
+    ".select-selected",
+  ) as HTMLElement;
+  const selectItems = document.querySelector(".select-items") as HTMLElement;
+  const hiddenInput = document.getElementById("topic") as HTMLInputElement;
+
+  // Toggle dropdown
+  selectSelected.addEventListener("click", (e) => {
+    e.stopPropagation();
+    selectItems.classList.toggle("select-hide");
+    selectSelected.classList.toggle("select-arrow-active");
+  });
+
+  // Handle option selection
+  const options = selectItems.querySelectorAll("div");
+  options.forEach((option) => {
+    option.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const value = (option as HTMLElement).getAttribute("data-value") || "";
+      const text = option.textContent || "";
+
+      // Update selected value
+      selectSelected.textContent = text;
+      selectSelected.classList.add("active");
+      hiddenInput.value = value;
+
+      // Update selected styling
+      options.forEach((opt) => opt.classList.remove("same-as-selected"));
+      option.classList.add("same-as-selected");
+
+      // Close dropdown
+      selectItems.classList.add("select-hide");
+      selectSelected.classList.remove("select-arrow-active");
+    });
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", () => {
+    selectItems.classList.add("select-hide");
+    selectSelected.classList.remove("select-arrow-active");
+  });
+
+  // Form submission
   const form = document.getElementById("contactForm") as HTMLFormElement;
   const responseDiv = document.getElementById("response") as HTMLDivElement;
 
@@ -161,7 +331,7 @@ import Layout from "../layouts/Layout.astro";
 
     // Disable button during submission
     button.disabled = true;
-    button.textContent = "Sender...";
+    button.textContent = "Sending...";
 
     try {
       const response = await fetch("/api/support", {
@@ -172,18 +342,22 @@ import Layout from "../layouts/Layout.astro";
       if (response.ok) {
         responseDiv.className = "response-message success";
         responseDiv.textContent =
-          "Din besked er sendt! Vi vender tilbage hurtigst muligt.";
+          "Your message has been sent! We'll get back to you as soon as possible.";
         form.reset();
+        // Reset custom select
+        selectSelected.textContent = "Topic";
+        selectSelected.classList.remove("active");
+        hiddenInput.value = "";
+        options.forEach((opt) => opt.classList.remove("same-as-selected"));
       } else {
-        throw new Error("Fejl ved afsendelse");
+        throw new Error("Submission error");
       }
     } catch (error) {
       responseDiv.className = "response-message error";
-      responseDiv.textContent =
-        "Der opstod en fejl. Prøv venligst igen senere.";
+      responseDiv.textContent = "An error occurred. Please try again later.";
     } finally {
       button.disabled = false;
-      button.textContent = "Send besked";
+      button.textContent = "Send Message";
     }
   });
 </script>
