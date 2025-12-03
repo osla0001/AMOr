@@ -1,8 +1,8 @@
 ---
 //@ts-nocheck
 import Layout from "../layouts/Layout.astro";
-import Button from "../components/Button.astro";
-import SoMe from "../components/SoMe.astro";
+import Section from "../components/Section.astro";
+import IndexCatalog from "../components/IndexCatalog.astro";
 
 const title = "AMOr";
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
@@ -10,15 +10,185 @@ const title = "AMOr";
 ---
 
 <Layout title="AMOr - Home">
-  <section>
-    <Button color="var(--bun-6)" href="/">Button</Button>
-  </section>
+  <main>
+    <section class="hero">
+      <!-- Video placeholder - will be replaced with video later -->
+      <div class="video-placeholder">
+        <video src="/images/amor_mg.mp4" autoplay muted loop id="landingVideo"
+        ></video>
+      </div>
+      <div class="hero-content">
+        <video src="/images/landing_video.mp4" autoplay muted loop></video>
+      </div>
+    </section>
+    <Section
+      title="PLAY OUR GAME"
+      image="/images/game_index.png"
+      button="Download Game"
+      button_link="/experience"
+      >Dive into our interactive food game and explore local spots in a fun,
+      playful way. Visit unique places brought into a 3D world. Unlock
+      achievements and discover local eateries that you might have never tried
+      before. <br /><br />
+      Together, we can create a movement where exploring local food becomes a shared
+      adventure.
+    </Section>
+    <Section
+      title="EXPLORE THE CITY"
+      image="/images/map_index.png"
+      background="var(--bun-2)"
+      order="-1"
+      button="View Map"
+      button_link="/map"
+      >Use the map to support neighborhood spots — each pin represents someone’s
+      story, craft, and passion. <br /><br />
+      See exactly where each location is. View all recommended spots in one place
+      and explore the city at your own pace.
+    </Section>
+    <IndexCatalog />
+    <Section
+      title="CONTACT"
+      image="/images/contact_index.png"
+      background="var(--bun-2)"
+      order="-1"
+      button="Contact Us"
+      button_link="/contact"
+      >Want to sign-up your business? <br />
+      Got questions? Contact us!
+      <br /><br />
+      <b>Tel:</b>
+      <a href="tel:+351000000000">+351 000 000 000</a>
+      <br />
+      <b>Email:</b>
+      <a href="mailto:amor@gmail.com">amor@gmail.com</a>
+      <br /><br />
+      <b>Location:</b>
+      <a href="https://www.iade.pt/en/"
+        >IADE University Rua Adão Manuel <br /> Ramos Barata 3, Moscavide, 1886-502
+        Lisboa</a
+      >
+    </Section>
+  </main>
 </Layout>
 
 <style>
-  section {
+  main {
+    flex: 1;
+    width: 100%;
+  }
+
+  .hero {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 80px); /* Full height minus header */
     display: flex;
-    gap: 20px;
-    padding: 20px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .video-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2; /* Video on top */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: invert(1);
+    mix-blend-mode: screen;
+  }
+
+  .video-placeholder video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.05);
+    width: 60%;
+    height: 100%;
+    object-fit: contain; /* Maintain aspect ratio and fit within container */
+  }
+
+  .hero-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Content behind video */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    background-color: var(
+      --ketchup-base
+    ); /* Background for blend mode to work */
+  }
+
+  .hero-content h1 {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    color: white;
+  }
+
+  .hero-content p {
+    font-size: 1.5rem;
+    color: white;
+  }
+
+  .content {
+    padding: 4rem 2rem;
+    min-height: 50vh;
+    background-color: var(--bun-1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .content h2 {
+    color: var(--ketchup-base);
+  }
+
+  @media (max-width: 768px) {
+    .hero-content h1 {
+      font-size: 2.5rem;
+    }
+
+    .hero-content p {
+      font-size: 1.2rem;
+    }
   }
 </style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const landingVideo = document.getElementById(
+      "landingVideo",
+    ) as HTMLVideoElement;
+
+    console.log("Landing video element:", landingVideo);
+
+    if (landingVideo) {
+      // Remove loop attribute if it exists
+      landingVideo.removeAttribute("loop");
+
+      landingVideo.addEventListener("ended", () => {
+        console.log("Video ended, waiting 10 seconds...");
+        // Wait 10 seconds before restarting the video
+        setTimeout(() => {
+          console.log("Restarting video now");
+          landingVideo.currentTime = 0;
+          landingVideo.play();
+        }, 10000); // 10000 milliseconds = 10 seconds
+      });
+
+      console.log("Event listener attached");
+    } else {
+      console.error("Landing video not found!");
+    }
+  });
+</script>

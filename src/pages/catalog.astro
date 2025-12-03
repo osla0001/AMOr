@@ -1,7 +1,337 @@
 ---
 //@ts-nocheck
+//@ts-ignore
+
 import Layout from "../layouts/Layout.astro";
+import CatalogCard from "../components/CatalogCard.astro";
+import Button from "../components/Button.astro";
+
 const title = "AMOr";
 ---
 
-<Layout title="AMOr - Catalog" />
+<Layout title="AMOr - Catalog">
+  <main>
+    <div class="center">
+      <h2>DISCOVER</h2>
+      <p>
+        The catalog puts the power of choice in your hands. Instead of big
+        chains or generic lists, you get local options. Find your new hidden
+        gems.
+      </p>
+    </div>
+    <section class="catalog">
+      <div class="buttons">
+        <div class="search-container" id="searchContainer">
+          <button class="search-button" id="searchButton">
+            <svg
+              class="search-icon"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <span id="searchText">Search</span>
+            <input
+              type="text"
+              class="search-input"
+              id="searchInput"
+              placeholder="Search by name, cuisine, or address..."
+            />
+          </button>
+        </div>
+        <Button color="var(--bun-6)" href="/map">Open Map</Button>
+      </div>
+      <div class="catalog-grid" id="catalogGrid">
+        {
+          // Fetch eateries data
+          await (async () => {
+            const response = await fetch(new URL("/api/eateries", Astro.url));
+            const eateries = await response.json();
+            return eateries.map((eatery) => (
+              <CatalogCard
+                id={eatery.id}
+                name={eatery.name}
+                cuisine={eatery.cus_name}
+                address={eatery.address}
+              />
+            ));
+          })()
+        }
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 auto;
+    place-self: center;
+    text-align: center;
+    padding: 2rem 20px 20px 20px;
+  }
+
+  .center p {
+    margin-bottom: 1rem;
+    max-width: 50ch;
+  }
+
+  .catalog {
+    width: 1000px;
+    margin: 0 auto;
+  }
+
+  .buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: center;
+  }
+
+  .search-container {
+    display: inline-block;
+  }
+
+  .search-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 3px solid var(--bun-6);
+    background-color: transparent;
+    border-radius: 10px;
+    padding: 7px 20px;
+    font-family: "Commissioner", sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--bun-6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    max-height: 40px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .search-button:hover {
+    background-color: var(--bun-6);
+    color: white;
+  }
+
+  .search-button:hover .search-icon {
+    stroke: white;
+  }
+
+  .search-icon {
+    flex-shrink: 0;
+    stroke: var(--bun-6);
+    transition: stroke 0.3s ease;
+  }
+
+  .search-button:hover .search-icon {
+    stroke: white;
+  }
+
+  .search-input {
+    display: none;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: "Commissioner", sans-serif;
+    font-size: 16px;
+    color: var(--bun-6);
+    width: 0;
+    transition: width 0.3s ease;
+  }
+
+  .search-input::placeholder {
+    color: var(--bun-6);
+    opacity: 0.7;
+  }
+
+  .search-container.expanded .search-button {
+    background-color: var(--bun-6);
+    color: white;
+    min-width: 300px;
+  }
+
+  .search-container.expanded .search-icon {
+    stroke: white;
+  }
+
+  .search-container.expanded #searchText {
+    display: none;
+  }
+
+  .search-container.expanded .search-input {
+    display: block;
+    width: 220px;
+    color: white;
+  }
+
+  .search-container.expanded .search-input::placeholder {
+    color: white;
+    opacity: 0.8;
+  }
+
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 20vh;
+  }
+
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 0 120px 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .catalog-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .catalog-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  // @ts-nocheck
+  // Fetch all eateries once at page load
+  let allEateries = [];
+
+  (async () => {
+    const response = await fetch(
+      new URL("/api/eateries", window.location.origin),
+    );
+    allEateries = await response.json();
+  })();
+
+  const searchContainer = document.getElementById("searchContainer");
+  const searchButton = document.getElementById("searchButton");
+  const searchInput = document.getElementById(
+    "searchInput",
+  ) as HTMLInputElement;
+  const catalogGrid = document.getElementById("catalogGrid");
+
+  // Toggle search input on button click
+  searchButton?.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (!searchContainer?.classList.contains("expanded")) {
+      searchContainer?.classList.add("expanded");
+      searchInput?.focus();
+    }
+  });
+
+  // Close search on outside click
+  document.addEventListener("click", (e) => {
+    if (!searchContainer?.contains(e.target as Node)) {
+      searchContainer?.classList.remove("expanded");
+      if (searchInput) searchInput.value = "";
+      renderEateries(allEateries);
+    }
+  });
+
+  // Search functionality
+  searchInput?.addEventListener("input", (e) => {
+    const searchTerm = (e.target as HTMLInputElement).value
+      .toLowerCase()
+      .trim();
+
+    if (searchTerm === "") {
+      renderEateries(allEateries);
+      return;
+    }
+
+    const filtered = allEateries.filter((eatery) => {
+      const name = eatery.name?.toLowerCase() || "";
+      const cuisine = eatery.cus_name?.toLowerCase() || "";
+      const address = eatery.address?.toLowerCase() || "";
+
+      return (
+        name.includes(searchTerm) ||
+        cuisine.includes(searchTerm) ||
+        address.includes(searchTerm)
+      );
+    });
+
+    renderEateries(filtered);
+  });
+
+  // Function to render eateries
+  function renderEateries(eateries: any[]) {
+    if (!catalogGrid) return;
+
+    catalogGrid.innerHTML = eateries
+      .map(
+        (eatery) => `
+      <a 
+        href="/catalog/${eatery.name.replace(/\s+/g, "")}" 
+        id="eatery-${eatery.id}" 
+        class="catalog-card"
+        style="
+          background-color: transparent;
+          padding: 10px;
+          text-decoration: none;
+          color: inherit;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          min-height: 280px;
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
+          overflow: hidden;
+        "
+      >
+        <img 
+          src="/eatery/${eatery.id}.png" 
+          alt="${eatery.name}"
+          style="
+            height: 180px;
+            width: 100%;
+            max-width: 100%;
+            object-fit: cover;
+            display: block;
+          "
+        />
+        <h5>${eatery.name}</h5>
+        <p style="font-size: 12px;">${eatery.cus_name || "Not specified"}</p>
+        <p style="font-size: 12px;">${eatery.address}</p>
+      </a>
+    `,
+      )
+      .join("");
+
+    // Add hover effect via event listeners
+    const cards = catalogGrid.querySelectorAll(".catalog-card");
+    cards.forEach((card) => {
+      card.addEventListener("mouseenter", () => {
+        (card as HTMLElement).style.backgroundColor = "rgba(0, 0, 0, 0.05)";
+      });
+      card.addEventListener("mouseleave", () => {
+        (card as HTMLElement).style.backgroundColor = "transparent";
+      });
+    });
+  }
+</script>

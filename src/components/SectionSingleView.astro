@@ -1,0 +1,61 @@
+---
+//@ts-nocheck
+import Button from "./Button.astro";
+
+const {
+  title,
+  image,
+  background,
+  order,
+  button,
+  button_link,
+  hasButton = true,
+} = Astro.props;
+---
+
+<section style=`background-color: ${background};`>
+  <div class="container">
+    <div>
+      <h2>{title}</h2>
+      <p><slot /></p>
+      {
+        hasButton && (
+          <Button color="var(--bun-6)" href={button_link}>
+            {button}
+          </Button>
+        )
+      }
+    </div>
+    <img src={image} alt={title} style=`order:${order};` />
+  </div>
+</section>
+
+<style>
+  section {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 80px 0px 0 0px;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  h2 {
+    margin-bottom: 1rem;
+  }
+
+  img {
+    width: 100%;
+    height: max-content;
+    object-fit: cover;
+  }
+
+  p {
+    margin-bottom: 1rem;
+  }
+</style>

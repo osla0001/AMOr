@@ -1,10 +1,10 @@
 ---
+//@ts-nocheck
 import Layout from "../../layouts/Layout.astro";
 import mysql from "mysql2/promise";
+import SectionSingleView from "../../components/SectionSingleView.astro";
 
-// getStaticPaths is required for dynamic routes in Astro
 export async function getStaticPaths() {
-  // Connection til database for at hente alle restauranter
   const db = await mysql.createPool({
     host: import.meta.env.DB_HOST || "34.175.101.196",
     port: parseInt(import.meta.env.DB_PORT || "3306"),
@@ -14,25 +14,19 @@ export async function getStaticPaths() {
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
+    connectTimeout: 60000,
+    acquireTimeout: 60000,
+    timeout: 60000,
   });
-
-  const [rows] = await db.query(`
-    SELECT DISTINCT e.etr_name
-    FROM eatery e
-  `);
-
+  const [rows] = await db.query(`SELECT DISTINCT e.etr_name FROM eatery e`);
   await db.end();
 
-  // Generer en path for hver restaurant
   return (rows as any[]).map((row) => ({
     params: { etr_name: row.etr_name.replace(/\s+/g, "") },
   }));
 }
 
-// Hent etr_name fra URL parameteren
 const { etr_name } = Astro.params;
-
-// Connection til din Cloud SQL database
 const db = await mysql.createPool({
   host: import.meta.env.DB_HOST || "34.175.101.196",
   port: parseInt(import.meta.env.DB_PORT || "3306"),
@@ -42,36 +36,33 @@ const db = await mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  connectTimeout: 60000,
+  acquireTimeout: 60000,
+  timeout: 60000,
 });
 
-// Hent data for den specifikke restaurant
-// Vi skal matche navnet uden mellemrum mod databasen
 const [rows] = await db.query(
-  `
-  SELECT 
-    e.etr_id, 
-    e.etr_name, 
-    e.etr_coordinates,
-    e.etr_address,
+  `SELECT 
+    e.etr_id, e.etr_name, e.etr_coordinates, e.etr_address, e.etr_menu_highlights,
+    e.etr_lgbt_friendly, e.etr_women_owned, e.etr_price_range, e.etr_outdoor_seating,
+    e.etr_pet_friendly, e.etr_wifi, e.etr_payment_methods, e.etr_local_suppliers,
+    e.etr_opening_hours, e.etr_bg_stry, e.etr_phone, e.etr_email,
     c.cus_name
   FROM eatery e
   LEFT JOIN eatery_cuisine ec ON e.etr_id = ec.etrc_etr_id
   LEFT JOIN cuisine c ON ec.etrc_cus_id = c.cus_id
-  WHERE REPLACE(e.etr_name, ' ', '') = ?
-`,
+  WHERE REPLACE(e.etr_name, ' ', '') = ?`,
   [etr_name],
 );
 
 await db.end();
 
-// Hvis ingen restaurant findes, vis 404
 if (!rows || (rows as any[]).length === 0) {
   return Astro.redirect("/404");
 }
 
-// Gruppér cuisines for restauranten
-const cuisines: string[] = [];
 const firstRow = (rows as any[])[0];
+const cuisines: string[] = [];
 
 (rows as any[]).forEach((row) => {
   if (row.cus_name && !cuisines.includes(row.cus_name)) {
@@ -79,162 +70,439 @@ const firstRow = (rows as any[])[0];
   }
 });
 
+let menuHighlights = [];
+try {
+  if (firstRow.etr_menu_highlights) {
+    menuHighlights = JSON.parse(firstRow.etr_menu_highlights);
+  }
+} catch (e) {
+  console.error("Failed to parse menu highlights:", e);
+}
+
 const eatery = {
   id: firstRow.etr_id,
   name: firstRow.etr_name,
   address: firstRow.etr_address || "Ingen adresse",
-  coordinates: firstRow.etr_coordinates,
   cuisines: cuisines.length > 0 ? cuisines.join(", ") : "Ikke angivet",
+  menu_highlights: menuHighlights,
+  lgbt_friendly: firstRow.etr_lgbt_friendly || false,
+  women_owned: firstRow.etr_women_owned || false,
+  price_range: firstRow.etr_price_range || "Not specified",
+  outdoor_seating: firstRow.etr_outdoor_seating || false,
+  pet_friendly: firstRow.etr_pet_friendly || false,
+  wifi: firstRow.etr_wifi || false,
+  payment_methods: firstRow.etr_payment_methods || "Not specified",
+  local_suppliers: firstRow.etr_local_suppliers || false,
+  opening_hours: firstRow.etr_opening_hours || "Not available",
+  bg_stry: firstRow.etr_bg_stry || "Not available",
+  phone: firstRow.etr_phone || "Not available",
+  email: firstRow.etr_email || "Not available",
 };
 
-const [lat, lng] = eatery.coordinates
-  ? eatery.coordinates.split(",").map(Number)
-  : [0, 0];
+const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><circle cx="12" cy="12" r="10" fill="transparent"/><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>`;
 ---
 
-<Layout title={eatery.name}>
+<Layout title=`AMOR - ${eatery.name}`>
   <main>
-    <div class="container">
-      <a href="/map" class="back-link">← Tilbage til kortet</a>
-
-      <div class="eatery-detail">
-        <div class="image-container">
-          <img src={`/eatery/${eatery.id}.png`} alt={eatery.name} />
+    <a href="#" class="back-link" id="backLink">← Go back</a>
+    <h2>{eatery.name}</h2>
+    <div class="image_container">
+      <img src={`/eatery/${eatery.id}.png`} alt={eatery.name} class="big_img" />
+    </div>
+    <SectionSingleView
+      title="DETAILS"
+      image={`/eatery/${eatery.id}_1.png`}
+      button="View Menu"
+      button_link="/map"
+      order="-1"
+      ><b>Kitchen:</b>
+      {eatery.cuisines}
+      <br />
+      <b>Location:</b>
+      {eatery.address}
+      <br />
+      <b>Contact:</b>
+      {eatery.phone} & {eatery.email}
+      <br />
+      <b>Opening hours:</b>
+      {eatery.opening_hours}
+    </SectionSingleView>
+    <SectionSingleView
+      title="ABOUT"
+      image={`/eatery/${eatery.id}_2.png`}
+      hasButton={false}
+      >{eatery.bg_stry}
+    </SectionSingleView>
+    <section class="dishes">
+      <div class="container">
+        <div class="center">
+          <h2>BEST DISHES</h2>
+          <p>
+            Every eatery in our database has something special to offer! <br
+            />Explore some of the top dishes that make {eatery.name} a must-visit!
+          </p>
         </div>
+      </div>
 
-        <div class="info-container">
-          <h1>{eatery.name}</h1>
-
-          <div class="info-section">
-            <h2>Køkken</h2>
-            <p>{eatery.cuisines}</p>
+      <div class="catalog">
+        <div class="catalog-grid">
+          {
+            eatery.menu_highlights.map((dish: any, index: number) => (
+              <div class="dish">
+                <img
+                  src={`/eatery/${eatery.id}_dish_${index + 1}.png`}
+                  alt={dish.title}
+                />
+                <p>
+                  <b>{dish.title}</b>
+                </p>
+                <p>{dish.description}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+      <div class="center">
+        <h2>MORE DETAILS</h2>
+        <div class="icons">
+          <!-- Row 1 -->
+          <div class="icon-item">
+            <div class="icon-wrapper">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="6" cy="6" r="3"></circle>
+                <path d="M6 10a4 4 0 0 0-4 4v3h8v-3a4 4 0 0 0-4-4z"></path>
+                <circle cx="12" cy="5" r="3"></circle>
+                <path d="M12 9a4 4 0 0 0-4 4v4h8v-4a4 4 0 0 0-4-4z"></path>
+                <circle cx="18" cy="6" r="3"></circle>
+                <path d="M18 10a4 4 0 0 0-4 4v3h8v-3a4 4 0 0 0-4-4z"></path>
+              </svg>
+              {!eatery.lgbt_friendly && <div set:html={crossIconSVG} />}
+            </div>
+            <p>LGBT+ Friendly</p>
           </div>
 
-          <div class="info-section">
-            <h2>Adresse</h2>
-            <p>{eatery.address}</p>
+          <div class="icon-item">
+            <div class="icon-wrapper">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="8" r="4"></circle>
+                <path d="M12 12a6 6 0 0 0-6 6v2h12v-2a6 6 0 0 0-6-6z"></path>
+                <path d="M12 2v4M12 12v4M4 8h4M16 8h4"></path>
+              </svg>
+              {!eatery.women_owned && <div set:html={crossIconSVG} />}
+            </div>
+            <p>Women Owned</p>
+          </div>
+          <div class="icon-item">
+            <div class="icon-wrapper">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
+                ></path>
+              </svg>
+            </div>
+            <p>{eatery.price_range}</p>
+          </div>
+          <div class="icon-item">
+            <div class="icon-wrapper">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M3 12h18"></path>
+                <path d="M5 8h14"></path>
+                <path d="M2 8l1 4v7"></path>
+                <path d="M22 8l-1 4v7"></path>
+                <path d="M12 8v11"></path>
+              </svg>
+              {!eatery.outdoor_seating && <div set:html={crossIconSVG} />}
+            </div>
+            <p>Outdoor Seating</p>
+          </div>
+          <!-- Row 2 -->
+          <div class="icon-item">
+            <div class="icon-wrapper">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7 .57 1.07 1 2.24 1 3.44C21 17.9 16.97 21 12 21s-9-3-9-7.56c0-1.25.5-2.4 1-3.44 0 0-1.89-6.42-.5-7 1.39-.58 4.72.23 6.5 2.23A9.04 9.04 0 0 1 12 5z"
+                ></path>
+                <path d="M9 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"></path>
+                <path d="M15 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"></path>
+                <path d="M9.2 15.5c.5.5 1.5.5 3 .5s2.5 0 3-.5"></path>
+              </svg>
+              {!eatery.pet_friendly && <div set:html={crossIconSVG} />}
+            </div>
+            <p>Pet Friendly</p>
           </div>
 
-          <div class="map-container">
-            <h2>Placering</h2>
-            <div id="map"></div>
+          <div class="icon-item">
+            <div class="icon-wrapper">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                <circle cx="12" cy="20" r="1"></circle>
+              </svg>
+              {!eatery.wifi && <div set:html={crossIconSVG} />}
+            </div>
+            <p>WiFi</p>
+          </div>
+
+          <div class="icon-item">
+            <div class="icon-wrapper">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                <line x1="2" y1="10" x2="22" y2="10"></line>
+              </svg>
+            </div>
+            <p>{eatery.payment_methods}</p>
+          </div>
+          <div class="icon-item">
+            <div class="icon-wrapper">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              {!eatery.local_suppliers && <div set:html={crossIconSVG} />}
+            </div>
+            <p>Local Suppliers</p>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   </main>
 </Layout>
 
 <style>
   main {
     padding: 2rem;
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
-  }
-
-  .container {
-    width: 100%;
   }
 
   .back-link {
     display: inline-block;
-    margin-bottom: 2rem;
-    color: #0066cc;
+    font-family: "Commissioner", sans-serif;
+    font-size: 16px;
+    margin-bottom: 1rem;
     text-decoration: none;
-    font-weight: 500;
+    color: var(--patty-6);
+    position: absolute;
   }
 
-  .back-link:hover {
-    text-decoration: underline;
+  h2 {
+    text-align: center;
   }
 
-  .eatery-detail {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  .image_container {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .big_img {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: cover;
+    margin-top: 1rem;
+  }
+
+  .dishes {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 80px 20px;
+  }
+
+  .dishes .container {
+    max-width: 1000px;
+    margin: 0 auto;
     gap: 2rem;
   }
 
-  .image-container img {
+  .dishes img {
     width: 100%;
-    height: 400px;
+    height: max-content;
     object-fit: cover;
-    border-radius: 8px;
   }
 
-  .info-container h1 {
-    margin-top: 0;
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
+  .center p {
+    margin-bottom: 1rem;
+    max-width: 50ch;
+    place-self: center;
   }
 
-  .info-section {
-    margin-bottom: 1.5rem;
+  .dishes .center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 auto;
+    place-self: center;
   }
 
-  .info-section h2 {
-    font-size: 1.2rem;
-    color: #666;
-    margin-bottom: 0.5rem;
+  .catalog-grid {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    padding-bottom: 1rem;
+    margin-bottom: 3rem;
+    justify-content: center;
   }
 
-  .info-section p {
-    font-size: 1.1rem;
-    margin: 0;
-  }
-
-  .info-section a {
-    color: #0066cc;
+  .dish {
+    background-color: transparent;
+    padding: 10px;
+    margin: 5px;
     text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 280px;
+    width: 200px;
+    min-width: 200px;
+    flex-shrink: 0;
   }
 
-  .info-section a:hover {
-    text-decoration: underline;
+  .dish:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    cursor: pointer;
   }
 
-  .map-container {
-    margin-top: 2rem;
-  }
-
-  #map {
+  .dish img {
+    height: 200px;
     width: 100%;
-    height: 300px;
-    border-radius: 8px;
-    background-color: #f0f0f0;
+    object-fit: cover;
+    display: block;
+  }
+
+  .icons {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 2rem;
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+  }
+
+  .icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+  }
+
+  .icon-wrapper {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-wrapper > svg {
+    color: var(--patty-base);
+  }
+
+  .icon-wrapper > div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .icon-wrapper .cross-icon {
+    z-index: 10;
+  }
+
+  .icon-item p {
+    font-size: 0.875rem;
+    margin: 0;
+    max-width: 120px;
+    width: 100%;
+    text-align: center;
   }
 
   @media (max-width: 768px) {
-    .eatery-detail {
-      grid-template-columns: 1fr;
-    }
-
-    .info-container h1 {
-      font-size: 2rem;
+    .icons {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
     }
   }
 </style>
 
-<script define:vars={{ lat, lng, name: eatery.name }}>
-  // Initialiser Google Maps for denne restaurant
-  function initMap() {
-    const location = { lat, lng };
-
-    const map = new google.maps.Map(document.getElementById("map"), {
-      zoom: 15,
-      center: location,
-      mapId: "DEMO_MAP_ID",
-    });
-
-    new google.maps.marker.AdvancedMarkerElement({
-      map: map,
-      position: location,
-      title: name,
-    });
-  }
-
-  // Wait for Google Maps API to be loaded
-  if (window.google && window.google.maps) {
-    initMap();
-  } else {
-    window.initMap = initMap;
-  }
+<script>
+  document.getElementById("backLink")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (document.referrer && document.referrer !== window.location.href) {
+      window.history.back();
+    } else {
+      window.location.href = "/catalog";
+    }
+  });
 </script>

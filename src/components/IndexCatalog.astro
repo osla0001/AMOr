@@ -1,0 +1,112 @@
+---
+//@ts-nocheck
+import Index from "../pages/index.astro";
+import Button from "./Button.astro";
+import IndexCatalogCard from "./IndexCatalogCard.astro";
+
+// Fetch eateries data
+const response = await fetch(new URL("/api/eateries", Astro.url));
+const data = await response.json();
+const eateries = Array.isArray(data) ? data : [];
+---
+
+<section>
+  <div class="container">
+    <div class="center">
+      <h2>DISCOVER</h2>
+      <p>
+        The catalog puts the power of choice in your hands. Instead of big
+        chains or generic lists, you get local options. Find your new hidden
+        gems.
+      </p>
+    </div>
+    <div class="catalog">
+      <div class="catalog-grid">
+        {
+          eateries
+            .slice(0, 9)
+            .map((eatery) => (
+              <IndexCatalogCard
+                id={eatery.id}
+                name={eatery.name}
+                cuisine={eatery.cus_name}
+                address={eatery.address}
+              />
+            ))
+        }
+      </div>
+      <div class="center">
+        <Button color="var(--bun-6)" href="/catalog">Open Catalog</Button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  section {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 120px 20px;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    gap: 2rem;
+  }
+
+  h2 {
+    margin-bottom: 1rem;
+    place-self: center;
+  }
+
+  img {
+    width: 100%;
+    height: max-content;
+    object-fit: cover;
+  }
+
+  p {
+    margin-bottom: 1rem;
+    max-width: 50ch;
+    place-self: center;
+  }
+
+  .center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 auto;
+    place-self: center;
+  }
+
+  .catalog-grid {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 1.1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 1rem;
+    scroll-behavior: smooth;
+    margin-bottom: 3rem;
+  }
+
+  .catalog-grid::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .catalog-grid::-webkit-scrollbar-track {
+    background: var(--bun-2);
+    border-radius: 10px;
+  }
+
+  .catalog-grid::-webkit-scrollbar-thumb {
+    background: var(--ketchup-base);
+    border-radius: 10px;
+  }
+
+  .catalog-grid::-webkit-scrollbar-thumb:hover {
+    background: var(--ketchup-4);
+  }
+</style>

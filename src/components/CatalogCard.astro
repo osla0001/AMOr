@@ -1,0 +1,50 @@
+---
+interface Props {
+  id: number;
+  name: string;
+  cuisine: string;
+  address: string;
+}
+
+const { id, name, cuisine, address } = Astro.props;
+
+// Create URL-friendly name by removing spaces
+const urlName = name.replace(/\s+/g, "");
+---
+
+<a href={`/catalog/${urlName}`} id={`eatery-${id}`} class="eatery">
+  <img src={`/eatery/${id}.png`} alt={name} />
+  <h5>{name}</h5>
+  <p>{cuisine}</p>
+  <p>{address}</p>
+</a>
+
+<style>
+  .eatery {
+    background-color: transparent;
+    padding: 10px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 280px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .eatery:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+  }
+
+  .eatery img {
+    height: 180px;
+    width: 100%;
+    max-width: 100%;
+    object-fit: cover;
+    display: block;
+  }
+</style>
