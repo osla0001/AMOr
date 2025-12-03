@@ -5,8 +5,38 @@
 import Layout from "../layouts/Layout.astro";
 import CatalogCard from "../components/CatalogCard.astro";
 import Button from "../components/Button.astro";
+import mysql from "mysql2/promise";
 
 const title = "AMOr";
+
+// Fetch eateries directly from database
+let eateries = [];
+try {
+  const connection = await mysql.createConnection({
+    host: "34.175.101.196",
+    port: 3306,
+    user: "root",
+    password: 'MvbsQB4|"Otq$\\d8',
+    database: "munchmap",
+    connectTimeout: 60000,
+  });
+
+  const [rows] = await connection.execute(`
+    SELECT 
+      e.etr_id as id,
+      e.etr_name as name,
+      e.etr_address as address,
+      c.cus_name
+    FROM eatery e
+    LEFT JOIN eatery_cuisine ec ON e.etr_id = ec.etrc_etr_id
+    LEFT JOIN cuisine c ON ec.etrc_cus_id = c.cus_id
+  `);
+
+  await connection.end();
+  eateries = rows;
+} catch (error) {
+  console.error("Database connection error:", error);
+}
 ---
 
 <Layout title="AMOr - Catalog">
@@ -48,19 +78,14 @@ const title = "AMOr";
       </div>
       <div class="catalog-grid" id="catalogGrid">
         {
-          // Fetch eateries data
-          await (async () => {
-            const response = await fetch(new URL("/api/eateries", Astro.url));
-            const eateries = await response.json();
-            return eateries.map((eatery) => (
-              <CatalogCard
-                id={eatery.id}
-                name={eatery.name}
-                cuisine={eatery.cus_name}
-                address={eatery.address}
-              />
-            ));
-          })()
+          eateries.map((eatery) => (
+            <CatalogCard
+              id={eatery.id}
+              name={eatery.name}
+              cuisine={eatery.cus_name}
+              address={eatery.address}
+            />
+          ))
         }
       </div>
     </section>
