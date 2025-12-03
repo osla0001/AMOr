@@ -1,5 +1,12 @@
-// @ts-check
-import { defineConfig } from 'astro/config';
+// astro.config.mjs
+import { defineConfig } from "astro/config";
+import netlify from "@astrojs/netlify";
 
-// https://astro.build/config
-export default defineConfig({});
+export default defineConfig({
+  integrations: [
+    netlify({
+      // for Netlify Functions (serverless) use default options,
+      // or use netlify({ edge: true }) for edge functions if needed
+    }),
+  ],
+});
