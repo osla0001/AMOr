@@ -264,12 +264,57 @@ import Layout from "../layouts/Layout.astro";
       font-size: 2rem;
     }
 
+    h2 {
+      font-size: 1.8rem;
+    }
+
     .form-row {
       grid-template-columns: 1fr;
     }
 
     main {
       padding: 2rem 1rem;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    main {
+      padding: 1.5rem 0.75rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    select,
+    input,
+    textarea {
+      padding: 0.5rem 1rem;
+      font-size: 14px;
+    }
+
+    .select-selected {
+      padding: 0.5rem 1rem;
+      font-size: 14px;
+    }
+
+    form {
+      gap: 1rem;
+    }
+
+    button {
+      font-size: 0.9rem;
+      padding: 6px 16px;
     }
   }
 </style>

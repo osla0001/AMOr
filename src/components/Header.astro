@@ -4,7 +4,7 @@ import Menu from "./Menu.astro";
 ---
 
 <header>
-  <div>
+  <div class="desktop-menu">
     <Menu url="/catalog">CATALOG</Menu>
     <Menu url="/map">MAP</Menu>
     <Menu url="/about">ABOUT US</Menu>
@@ -12,11 +12,57 @@ import Menu from "./Menu.astro";
   <a href="/" class="logo-container">
     <img src="/logo.svg" alt="AMOr logo" class="logo" />
   </a>
-  <div>
+  <div class="desktop-buttons">
     <Button color="var(--lettuce-5)" href="/experience">DOWNLOAD</Button>
     <Button color="var(--ketchup-base)" href="/contact">CONTACT US</Button>
   </div>
+
+  <!-- Mobile Burger Menu Button -->
+  <button class="burger-menu" id="burgerMenu" aria-label="Toggle menu">
+    <span class="burger-line"></span>
+    <span class="burger-line"></span>
+    <span class="burger-line"></span>
+  </button>
 </header>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay">
+  <svg
+    class="wave wave-1"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 100 100"
+    preserveAspectRatio="none"
+  >
+    <rect fill="var(--patty-base)" x="51.6" width="48.4" height="100"></rect>
+    <rect fill="var(--patty-base)" x="-.47" width="66.45" height="49.91"></rect>
+    <path
+      fill="var(--patty-base)"
+      d="M-7.26,40.45S.77,58.85,12.12,60.22s.78,12.72,9.01,19.97,11.94-2.74,17.62,6.07-2.94,12.72,3.72,21.73,9.13-7.99,9.13-7.99l27.48-48.78-39.15-18.01-47.18,7.24Z"
+    ></path>
+  </svg>
+  <svg
+    class="wave wave-2"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 100 100"
+    preserveAspectRatio="none"
+  >
+    <rect fill="var(--bun-1)" x="51.6" width="48.4" height="100"></rect>
+    <rect fill="var(--bun-1)" x="-.47" width="66.45" height="49.91"></rect>
+    <path
+      fill="var(--bun-1)"
+      d="M-6.47,33.21s-6.58,28.26,11.35,29.76c4.7.39,10.38,2.35,9.98,9.79-.58,10.94,12.53-.39,15.66,12.53,2.47,10.19,14.68,3.33,12.72,15.47-1.78,11.06,16.84.78,16.84.78l19.77-57.56-39.15-18.01-47.18,7.24Z"
+    ></path>
+  </svg>
+  <nav class="mobile-nav">
+    <a href="/catalog" class="mobile-menu-item">CATALOG</a>
+    <a href="/map" class="mobile-menu-item">MAP</a>
+    <a href="/about" class="mobile-menu-item">ABOUT US</a>
+    <div class="mobile-menu-buttons">
+      <Button color="var(--lettuce-5)" href="/experience">DOWNLOAD</Button>
+      <Button color="var(--ketchup-base)" href="/contact">CONTACT US</Button>
+    </div>
+  </nav>
+</div>
 
 <style>
   header {
@@ -29,21 +75,26 @@ import Menu from "./Menu.astro";
     padding: 0 2%;
     border-bottom: 2px solid var(--ketchup-3);
     position: sticky;
+    top: 0;
+    z-index: 1002;
+    transition: border-bottom 0.4s ease-in-out;
   }
 
   header > div {
     flex: 1;
   }
 
-  header > div:last-child {
+  .desktop-buttons {
     display: flex;
     justify-content: flex-end;
+    gap: 0.5rem;
   }
 
   .logo-container {
     flex: 1;
     display: flex;
     justify-content: center;
+    transition: all 0.5s ease;
   }
 
   .logo {
@@ -56,4 +107,288 @@ import Menu from "./Menu.astro";
     scale: 1.1;
     transition: all 0.3s ease;
   }
+
+  .desktop-menu {
+    display: flex;
+    flex-wrap: nowrap;
+  }
+
+  /* Remove border when mobile menu is active */
+  header:has(+ .mobile-menu-overlay.active) {
+    border-bottom: 2px solid transparent;
+    transition: border-bottom 0.4s ease-in-out;
+  }
+
+  /* Burger Menu - Hidden by default */
+  .burger-menu {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 32px;
+    height: 28px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1003;
+    position: relative;
+  }
+
+  .burger-line {
+    width: 32px;
+    height: 3px;
+    background-color: var(--ketchup-base);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    transform-origin: center;
+  }
+
+  /* Burger Menu Open State (X) */
+  .burger-menu.open .burger-line {
+    background-color: var(--ketchup-base);
+  }
+
+  .burger-menu.open .burger-line:nth-child(1) {
+    transform: translateY(10px) rotate(45deg);
+  }
+
+  .burger-menu.open .burger-line:nth-child(2) {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  .burger-menu.open .burger-line:nth-child(3) {
+    transform: translateY(-10px) rotate(-45deg);
+  }
+
+  /* Mobile Menu Overlay */
+  .mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 999;
+    overflow: hidden;
+  }
+
+  .mobile-menu-overlay.active svg {
+    scale: 2;
+  }
+
+  .mobile-menu-overlay.active {
+    pointer-events: all;
+  }
+
+  /* Wave Animations */
+  .wave {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+
+  .wave-1 {
+    top: -100%;
+    right: -100%;
+    transition: all 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .wave-2 {
+    top: -100%;
+    right: -100%;
+    transition: all 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+    transition-delay: 0.15s;
+  }
+
+  .mobile-menu-overlay.active .wave-1 {
+    top: 0;
+    right: 0;
+  }
+
+  .mobile-menu-overlay.active .wave-2 {
+    top: 0;
+    right: 0;
+  }
+
+  /* Mobile Navigation */
+  .mobile-nav {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+    visibility: hidden;
+    transition: visibility 0s;
+    transition-delay: 0.5s;
+  }
+
+  .mobile-menu-overlay.active .mobile-nav {
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .mobile-menu-item {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--ketchup-base);
+    text-decoration: none;
+    transform: scale(0) translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    font-family: "Commissioner", sans-serif;
+  }
+
+  .mobile-menu-overlay.active .mobile-menu-item {
+    transform: scale(1) translateY(0);
+  }
+
+  /* Staggered animation for menu items */
+  .mobile-menu-overlay.active .mobile-menu-item:nth-child(1) {
+    transition-delay: 0.7s;
+  }
+
+  .mobile-menu-overlay.active .mobile-menu-item:nth-child(2) {
+    transition-delay: 0.8s;
+  }
+
+  .mobile-menu-overlay.active .mobile-menu-item:nth-child(3) {
+    transition-delay: 0.9s;
+  }
+
+  .mobile-menu-item:hover {
+    color: var(--ketchup-4);
+    transform: scale(1.1) translateY(0);
+  }
+
+  .mobile-menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    transform: scale(0) translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transition-delay: 1s;
+  }
+
+  .mobile-menu-overlay.active .mobile-menu-buttons {
+    transform: scale(1) translateY(0);
+  }
+
+  /* Buttons disappear first when closing */
+  .mobile-menu-overlay:not(.active) .mobile-menu-buttons {
+    transition-delay: 0s;
+  }
+
+  @media (max-width: 800px) {
+    .desktop-menu,
+    .desktop-buttons {
+      display: none;
+    }
+
+    .burger-menu {
+      display: flex;
+    }
+
+    .logo-container {
+      justify-content: flex-start;
+    }
+
+    header {
+      height: 60px;
+      min-height: 60px;
+      padding: 0 1rem;
+    }
+
+    .logo {
+      height: 45px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    header {
+      height: 50px;
+      min-height: 50px;
+      padding: 0 0.5rem;
+    }
+
+    .logo {
+      height: 35px;
+    }
+
+    .burger-menu {
+      width: 28px;
+      height: 24px;
+    }
+
+    .burger-line {
+      width: 28px;
+      height: 2.5px;
+    }
+
+    .mobile-menu-item {
+      font-size: 1.5rem;
+    }
+
+    .mobile-nav {
+      gap: 1.5rem;
+    }
+  }
 </style>
+
+<script>
+  const burgerMenu = document.getElementById("burgerMenu");
+  const mobileMenuOverlay = document.getElementById("mobileMenuOverlay");
+  const mobileMenuItems = document.querySelectorAll(".mobile-menu-item");
+
+  burgerMenu?.addEventListener("click", () => {
+    burgerMenu.classList.toggle("open");
+    mobileMenuOverlay?.classList.toggle("active");
+
+    // Prevent body scroll when menu is open
+    if (mobileMenuOverlay?.classList.contains("active")) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  });
+
+  // Close menu when clicking on a menu item
+  mobileMenuItems.forEach((item) => {
+    item.addEventListener("click", () => {
+      burgerMenu?.classList.remove("open");
+      mobileMenuOverlay?.classList.remove("active");
+      document.body.style.overflow = "";
+    });
+  });
+
+  // Close menu when clicking on buttons
+  const mobileButtons = document.querySelectorAll(".mobile-menu-buttons a");
+  mobileButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      burgerMenu?.classList.remove("open");
+      mobileMenuOverlay?.classList.remove("active");
+      document.body.style.overflow = "";
+    });
+  });
+
+  // Close menu when clicking on overlay (outside menu items)
+  mobileMenuOverlay?.addEventListener("click", (e) => {
+    if (e.target === mobileMenuOverlay) {
+      burgerMenu?.classList.remove("open");
+      mobileMenuOverlay?.classList.remove("active");
+      document.body.style.overflow = "";
+    }
+  });
+
+  // Close menu when resizing above 800px
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 800) {
+      burgerMenu?.classList.remove("open");
+      mobileMenuOverlay?.classList.remove("active");
+      document.body.style.overflow = "";
+    }
+  });
+</script>

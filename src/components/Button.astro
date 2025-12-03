@@ -29,6 +29,7 @@ const { color, hover = "var(--lettuce-5)", href } = Astro.props;
 
   a p {
     font-weight: 500;
+    text-wrap: nowrap;
   }
 
   a:hover {
@@ -38,6 +39,29 @@ const { color, hover = "var(--lettuce-5)", href } = Astro.props;
 
   a:hover p {
     color: white !important;
+  }
+
+  @media (max-width: 768px) {
+    a {
+      padding: 6px 15px;
+      max-height: 35px;
+      margin: 0 5px 0 0;
+    }
+
+    a p {
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    a {
+      padding: 5px 12px;
+      max-height: 30px;
+    }
+
+    a p {
+      font-size: 0.8rem;
+    }
   }
 </style>
 

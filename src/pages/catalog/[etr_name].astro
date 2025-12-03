@@ -422,11 +422,6 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
     flex-shrink: 0;
   }
 
-  .dish:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    cursor: pointer;
-  }
-
   .dish img {
     height: 200px;
     width: 100%;
@@ -492,6 +487,109 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
     .icons {
       grid-template-columns: repeat(2, 1fr);
       gap: 1.5rem;
+      padding: 0.75rem;
+    }
+
+    main {
+      padding: 0 1rem;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      margin-top: 1rem;
+    }
+
+    .big_img {
+      max-height: 300px;
+    }
+
+    .dishes {
+      padding: 60px 1rem;
+    }
+
+    .catalog-grid {
+      gap: 0.35rem;
+      margin-bottom: 2rem;
+    }
+
+    .dish {
+      height: 240px;
+      width: 170px;
+      min-width: 170px;
+      padding: 8px;
+    }
+
+    .dish img {
+      height: 160px;
+    }
+
+    .back-link {
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    main {
+      padding: 0 0.5rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    .big_img {
+      max-height: 200px;
+    }
+
+    .dishes {
+      padding: 40px 0.5rem;
+    }
+
+    .dishes .center p {
+      font-size: 0.85rem;
+    }
+
+    .catalog-grid {
+      gap: 0.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .dish {
+      height: 200px;
+      width: 140px;
+      min-width: 140px;
+      padding: 6px;
+    }
+
+    .dish img {
+      height: 130px;
+    }
+
+    .dish h5 {
+      font-size: 0.9rem;
+    }
+
+    .dish p {
+      font-size: 0.75rem;
+    }
+
+    .icons {
+      gap: 1rem;
+      padding: 0.5rem;
+    }
+
+    .icon-wrapper {
+      width: 48px;
+      height: 48px;
+    }
+
+    .icon-item p {
+      font-size: 0.75rem;
+    }
+
+    .back-link {
+      font-size: 0.85rem;
+      margin: 0.5rem 0;
     }
   }
 </style>

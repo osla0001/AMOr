@@ -68,6 +68,20 @@ try {
 
 <Layout title="AMOr - Map" includeGoogleMaps={true} showFooter={false}>
   <main>
+    <button class="back-to-map" id="backToMap">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="var(--ketchup-base)"
+        stroke-width="2.5"
+      >
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+    </button>
     <section id="catalog">
       {
         initialEateries.map((eatery) => (
@@ -298,6 +312,12 @@ try {
       markerContainer.addEventListener("click", () => {
         map.panTo({ lat: place.lat, lng: place.lng });
 
+        // On mobile, show catalog
+        if (window.innerWidth <= 768) {
+          document.getElementById("catalog")?.classList.add("show-catalog");
+          document.getElementById("backToMap")?.classList.add("visible");
+        }
+
         // Scroll til den valgte eatery i catalog
         moveEateryToTop(place.id);
 
@@ -360,6 +380,12 @@ try {
   // Export function to global scope for Google Maps callback
   window.initializeApp = initializeApp;
 
+  // Back to map button handler
+  document.getElementById("backToMap")?.addEventListener("click", () => {
+    document.getElementById("catalog")?.classList.remove("show-catalog");
+    document.getElementById("backToMap")?.classList.remove("visible");
+  });
+
   // Backup: If Google Maps is already loaded, run initializeApp immediately
   if (typeof google !== "undefined" && google.maps) {
     console.log("Google Maps already loaded, initializing now");
@@ -415,5 +441,91 @@ try {
     opacity: 1;
     pointer-events: none;
     z-index: 1;
+  }
+
+  .back-to-map {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    :global(main) {
+      flex-direction: column;
+      height: calc(100vh - 60px);
+      position: relative;
+    }
+
+    #catalog {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 10;
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border-bottom: none;
+    }
+
+    #catalog.show-catalog {
+      transform: translateY(0);
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .back-to-map {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      top: 70px;
+      left: 1rem;
+      z-index: 20;
+      background-color: var(--bun-1);
+      border: 2px solid var(--ketchup-base);
+      border-radius: 0;
+      width: 48px;
+      height: 48px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.8);
+    }
+
+    .back-to-map.visible {
+      opacity: 1;
+      pointer-events: all;
+      transform: scale(1);
+    }
+
+    .back-to-map:hover {
+      background-color: var(--bun-2);
+      transform: scale(1.1);
+    }
+
+    .back-to-map svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    :global(main) {
+      height: calc(100vh - 50px);
+    }
+
+    .back-to-map {
+      top: 60px;
+      width: 40px;
+      height: 40px;
+    }
+
+    .back-to-map svg {
+      width: 20px;
+      height: 20px;
+    }
   }
 </style>

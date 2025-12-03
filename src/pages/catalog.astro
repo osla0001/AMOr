@@ -33,7 +33,33 @@ try {
   `);
 
   await connection.end();
-  eateries = rows;
+
+  // Group by restaurant ID to avoid duplicates
+  const eateriesMap = new Map();
+  (rows as any[]).forEach((row) => {
+    if (!eateriesMap.has(row.id)) {
+      eateriesMap.set(row.id, {
+        id: row.id,
+        name: row.name,
+        address: row.address,
+        cuisines: [],
+      });
+    }
+    if (
+      row.cus_name &&
+      !eateriesMap.get(row.id).cuisines.includes(row.cus_name)
+    ) {
+      eateriesMap.get(row.id).cuisines.push(row.cus_name);
+    }
+  });
+
+  // Convert to array and combine cuisines
+  eateries = Array.from(eateriesMap.values()).map((e) => ({
+    id: e.id,
+    name: e.name,
+    address: e.address,
+    cus_name: e.cuisines.length > 0 ? e.cuisines.join(", ") : "Not specified",
+  }));
 } catch (error) {
   console.error("Database connection error:", error);
 }
@@ -227,15 +253,40 @@ try {
     margin-bottom: 1.5rem;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 1000px) {
+    .catalog {
+      width: 100%;
+    }
+
     .catalog-grid {
       grid-template-columns: repeat(2, 1fr);
+      gap: 0.1rem;
+    }
+
+    .center {
+      padding: 1.5rem 1rem 1rem 1rem;
+    }
+
+    .center h2 {
+      font-size: 1.8rem;
+    }
+
+    main {
+      padding: 0 0 60px 0;
     }
   }
 
   @media (max-width: 480px) {
     .catalog-grid {
       grid-template-columns: 1fr;
+    }
+
+    .center h2 {
+      font-size: 1.5rem;
+    }
+
+    .center p {
+      font-size: 0.9rem;
     }
   }
 </style>

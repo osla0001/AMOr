@@ -69,4 +69,62 @@ import SoMe from "./SoMe.astro";
     display: flex;
     gap: 1rem;
   }
+
+  @media (max-width: 768px) {
+    footer {
+      height: 100px;
+      min-height: 100px;
+      padding: 0 1rem;
+    }
+
+    .logo {
+      height: 45px;
+    }
+
+    .center-section h1 {
+      font-size: 1.5rem;
+    }
+
+    .somes {
+      gap: 0.5rem;
+    }
+
+    .right-section p {
+      font-size: 0.8rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    footer {
+      height: auto;
+      min-height: 80px;
+      flex-direction: column;
+      padding: 1rem 0.5rem;
+      gap: 1rem;
+    }
+
+    .somes,
+    .center-section,
+    .right-section {
+      width: 100%;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .right-section {
+      align-items: center;
+    }
+
+    .logo {
+      height: 35px;
+    }
+
+    .center-section h1 {
+      font-size: 1.2rem;
+    }
+
+    .somes {
+      justify-content: center;
+    }
+  }
 </style>

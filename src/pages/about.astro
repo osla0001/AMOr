@@ -373,7 +373,6 @@ const title = "AMOr";
     margin: 0 auto;
     place-self: center;
     text-align: center;
-    width: 90ch;
   }
 
   .happen_card img {
@@ -402,5 +401,74 @@ const title = "AMOr";
 
   .happen p {
     text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    .image_container {
+      padding: 0 1rem;
+    }
+
+    .big_img {
+      max-height: 300px;
+    }
+
+    .faq-container {
+      padding: 0 1rem;
+    }
+
+    .happen {
+      gap: 1rem;
+      margin-bottom: 4rem;
+    }
+
+    .happen_card {
+      width: 100%;
+      max-width: 350px;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .image_container {
+      padding: 0 0.5rem;
+    }
+
+    .big_img {
+      max-height: 200px;
+    }
+
+    .faq-container {
+      padding: 0 0.5rem;
+    }
+
+    .accordion-header {
+      font-size: 0.9rem;
+      padding: 0.75rem;
+    }
+
+    .accordion-content p {
+      font-size: 0.85rem;
+      padding: 0 0.75rem 0.75rem 0.75rem;
+    }
+
+    .happen_card {
+      width: 100%;
+      padding: 0.5rem;
+    }
+
+    .happen_card img {
+      height: 150px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    h5 {
+      font-size: 1rem;
+    }
   }
 </style>
