@@ -276,6 +276,23 @@ try {
     }
   }
 
+  @media (max-width: 768px) {
+    .search-button {
+      padding: 6px 15px;
+      max-height: 35px;
+      font-size: 0.9rem;
+    }
+
+    .search-container.expanded .search-button {
+      min-width: 250px;
+    }
+
+    .search-container.expanded .search-input {
+      width: 170px;
+      font-size: 0.9rem;
+    }
+  }
+
   @media (max-width: 480px) {
     .catalog-grid {
       grid-template-columns: 1fr;
@@ -287,6 +304,26 @@ try {
 
     .center p {
       font-size: 0.9rem;
+    }
+
+    .search-button {
+      padding: 5px 12px;
+      max-height: 30px;
+      font-size: 0.8rem;
+    }
+
+    .search-container.expanded .search-button {
+      min-width: 200px;
+    }
+
+    .search-container.expanded .search-input {
+      width: 120px;
+      font-size: 0.8rem;
+    }
+
+    .search-icon {
+      width: 16px;
+      height: 16px;
     }
   }
 </style>
@@ -381,7 +418,7 @@ try {
         "
       >
         <img 
-          src="/eatery/${eatery.id}.png" 
+          src="/eatery/${eatery.id}.webp" 
           alt="${eatery.name}"
           style="
             height: 180px;

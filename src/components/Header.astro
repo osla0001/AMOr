@@ -74,10 +74,14 @@ import Menu from "./Menu.astro";
     justify-content: space-between;
     padding: 0 2%;
     border-bottom: 2px solid var(--ketchup-3);
-    position: sticky;
+    position: fixed;
+    width: 100%;
+    left: 0;
+    right: 0;
     top: 0;
     z-index: 1002;
     transition: border-bottom 0.4s ease-in-out;
+    box-sizing: border-box;
   }
 
   header > div {

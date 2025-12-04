@@ -98,38 +98,45 @@ const eatery = {
   phone: firstRow.etr_phone || "Not available",
   email: firstRow.etr_email || "Not available",
 };
-
-const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><circle cx="12" cy="12" r="10" fill="transparent"/><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>`;
 ---
 
 <Layout title=`AMOR - ${eatery.name}`>
   <main>
-    <a href="#" class="back-link" id="backLink">← Go back</a>
+    <a href="#" class="back-link" id="backLink">⬅ Go back</a>
     <h2>{eatery.name}</h2>
     <div class="image_container">
-      <img src={`/eatery/${eatery.id}.png`} alt={eatery.name} class="big_img" />
+      <img
+        src={`/eatery/${eatery.id}.webp`}
+        alt={eatery.name}
+        class="big_img"
+      />
     </div>
     <SectionSingleView
       title="DETAILS"
-      image={`/eatery/${eatery.id}_1.png`}
-      button="View Menu"
-      button_link="/map"
+      image={`/eatery/${eatery.id}_1.webp`}
       order="-1"
+      hasButton={false}
       ><b>Kitchen:</b>
       {eatery.cuisines}
       <br />
       <b>Location:</b>
-      {eatery.address}
+      <a
+        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(eatery.address)}`}
+        target="_blank"
+        rel="noopener noreferrer">{eatery.address}</a
+      >
       <br />
       <b>Contact:</b>
-      {eatery.phone} & {eatery.email}
+      <a href={`tel:${eatery.phone}`}>{eatery.phone}</a> & <a
+        href={`mailto:${eatery.email}`}>{eatery.email}</a
+      >
       <br />
       <b>Opening hours:</b>
       {eatery.opening_hours}
     </SectionSingleView>
     <SectionSingleView
       title="ABOUT"
-      image={`/eatery/${eatery.id}_2.png`}
+      image={`/eatery/${eatery.id}_2.webp`}
       hasButton={false}
       >{eatery.bg_stry}
     </SectionSingleView>
@@ -150,7 +157,7 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
             eatery.menu_highlights.map((dish: any, index: number) => (
               <div class="dish">
                 <img
-                  src={`/eatery/${eatery.id}_dish_${index + 1}.png`}
+                  src={`/eatery/${eatery.id}_dish_${index + 1}.webp`}
                   alt={dish.title}
                 />
                 <p>
@@ -169,6 +176,7 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
           <div class="icon-item">
             <div class="icon-wrapper">
               <svg
+                class={eatery.lgbt_friendly ? "icon-active" : "icon-inactive"}
                 xmlns="http://www.w3.org/2000/svg"
                 width="48"
                 height="48"
@@ -184,33 +192,26 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
                 <circle cx="18" cy="6" r="3"></circle>
                 <path d="M18 10a4 4 0 0 0-4 4v3h8v-3a4 4 0 0 0-4-4z"></path>
               </svg>
-              {!eatery.lgbt_friendly && <div set:html={crossIconSVG} />}
             </div>
             <p>LGBT+ Friendly</p>
           </div>
 
           <div class="icon-item">
             <div class="icon-wrapper">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
+              <div
+                class={eatery.women_owned
+                  ? "icon-text icon-active"
+                  : "icon-text icon-inactive"}
               >
-                <circle cx="12" cy="8" r="4"></circle>
-                <path d="M12 12a6 6 0 0 0-6 6v2h12v-2a6 6 0 0 0-6-6z"></path>
-                <path d="M12 2v4M12 12v4M4 8h4M16 8h4"></path>
-              </svg>
-              {!eatery.women_owned && <div set:html={crossIconSVG} />}
+                <span class="stroke">♀</span>
+              </div>
             </div>
             <p>Women Owned</p>
           </div>
           <div class="icon-item">
             <div class="icon-wrapper">
               <svg
+                class="icon-active"
                 xmlns="http://www.w3.org/2000/svg"
                 width="48"
                 height="48"
@@ -219,9 +220,9 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <line x1="12" y1="1" x2="12" y2="23"></line>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
-                ></path>
+                <path d="M19 6H9a3 3 0 0 0 0 6h6a3 3 0 0 1 0 6H5"></path>
+                <line x1="12" y1="2" x2="12" y2="4"></line>
+                <line x1="12" y1="20" x2="12" y2="22"></line>
               </svg>
             </div>
             <p>{eatery.price_range}</p>
@@ -229,6 +230,7 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
           <div class="icon-item">
             <div class="icon-wrapper">
               <svg
+                class={eatery.outdoor_seating ? "icon-active" : "icon-inactive"}
                 xmlns="http://www.w3.org/2000/svg"
                 width="48"
                 height="48"
@@ -243,7 +245,6 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
                 <path d="M22 8l-1 4v7"></path>
                 <path d="M12 8v11"></path>
               </svg>
-              {!eatery.outdoor_seating && <div set:html={crossIconSVG} />}
             </div>
             <p>Outdoor Seating</p>
           </div>
@@ -251,6 +252,7 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
           <div class="icon-item">
             <div class="icon-wrapper">
               <svg
+                class={eatery.pet_friendly ? "icon-active" : "icon-inactive"}
                 xmlns="http://www.w3.org/2000/svg"
                 width="48"
                 height="48"
@@ -266,7 +268,6 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
                 <path d="M15 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"></path>
                 <path d="M9.2 15.5c.5.5 1.5.5 3 .5s2.5 0 3-.5"></path>
               </svg>
-              {!eatery.pet_friendly && <div set:html={crossIconSVG} />}
             </div>
             <p>Pet Friendly</p>
           </div>
@@ -274,6 +275,7 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
           <div class="icon-item">
             <div class="icon-wrapper">
               <svg
+                class={eatery.wifi ? "icon-active" : "icon-inactive"}
                 xmlns="http://www.w3.org/2000/svg"
                 width="48"
                 height="48"
@@ -287,7 +289,6 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
                 <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
                 <circle cx="12" cy="20" r="1"></circle>
               </svg>
-              {!eatery.wifi && <div set:html={crossIconSVG} />}
             </div>
             <p>WiFi</p>
           </div>
@@ -295,6 +296,7 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
           <div class="icon-item">
             <div class="icon-wrapper">
               <svg
+                class="icon-active"
                 xmlns="http://www.w3.org/2000/svg"
                 width="48"
                 height="48"
@@ -312,6 +314,7 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
           <div class="icon-item">
             <div class="icon-wrapper">
               <svg
+                class={eatery.local_suppliers ? "icon-active" : "icon-inactive"}
                 xmlns="http://www.w3.org/2000/svg"
                 width="48"
                 height="48"
@@ -320,10 +323,16 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                <path
+                  d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"
+                ></path>
+                <path d="M15 18H9"></path>
+                <path
+                  d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.579l-1.5-4A1 1 0 0 0 16.382 7H15"
+                ></path>
+                <circle cx="7" cy="18" r="2"></circle>
+                <circle cx="17" cy="18" r="2"></circle>
               </svg>
-              {!eatery.local_suppliers && <div set:html={crossIconSVG} />}
             </div>
             <p>Local Suppliers</p>
           </div>
@@ -459,20 +468,19 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
     color: var(--patty-base);
   }
 
-  .icon-wrapper > div {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
+  .icon-active {
+    color: var(--lettuce-3) !important;
   }
 
-  .icon-wrapper .cross-icon {
-    z-index: 10;
+  .icon-inactive {
+    color: var(--cheese-6) !important;
+    opacity: 0.2;
+  }
+
+  .icon-text {
+    font-size: 48px;
+    font-weight: 900;
+    line-height: 1;
   }
 
   .icon-item p {
@@ -481,6 +489,10 @@ const crossIconSVG = `<svg class="cross-icon" xmlns="http://www.w3.org/2000/svg"
     max-width: 120px;
     width: 100%;
     text-align: center;
+  }
+
+  .stroke {
+    -webkit-text-stroke: 3px;
   }
 
   @media (max-width: 768px) {

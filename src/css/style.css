@@ -55,6 +55,16 @@
   --lettuce-6: #073012;
 }
 
+main {
+  margin-top: 80px !important;
+}
+
+@media (max-width: 800px) {
+  main {
+    margin-top: 60px !important;
+  }
+}
+
 body {
   background-color: var(--bun-1);
 }

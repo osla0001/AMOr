@@ -20,7 +20,7 @@ const title = "AMOr";
     </section>
     <Section
       title="EXPLORE"
-      image="/images/explore.png"
+      image="/images/explore.webp"
       hasButton={false}
       order="-1"
       >Discover the hidden culinary treasures in the area as you navigate an
@@ -31,7 +31,7 @@ const title = "AMOr";
     </Section>
     <Section
       title="VISIT"
-      image="/images/visit.png"
+      image="/images/visit.webp"
       hasButton={false}
       background="var(--bun-2)"
       >Step inside eateries through your screen, virtually exploring their
@@ -41,7 +41,7 @@ const title = "AMOr";
     </Section>
     <Section
       title="COLLECT"
-      image="/images/collect.png"
+      image="/images/collect.webp"
       hasButton={false}
       order="-1"
       >Track your progress and celebrate your achievements as you unlock badges,
@@ -52,7 +52,7 @@ const title = "AMOr";
     </Section>
     <Section
       title="CONNECT"
-      image="/images/connect.png"
+      image="/images/connect.webp"
       hasButton={false}
       background="var(--bun-2)"
       >Engage with the people who make your food scene so unique by connecting
@@ -172,7 +172,7 @@ const title = "AMOr";
       .hero {
         position: relative;
         width: 100%;
-        height: calc(100vh - 80px); /* Full height minus header */
+        height: calc(100vh - 80px);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -195,10 +195,12 @@ const title = "AMOr";
         position: absolute;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%) scale(1.05);
-        width: 60%;
-        height: 100%;
-        object-fit: cover; /* Maintain aspect ratio and fit within container */
+        transform: translate(-50%, -50%);
+        max-width: 60%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
       }
 
       .hero-content {
@@ -248,6 +250,8 @@ const title = "AMOr";
         place-self: center;
         text-align: center;
         width: 90ch;
+        max-width: 100%;
+        padding: 0 1rem;
       }
 
       a {
@@ -305,6 +309,92 @@ const title = "AMOr";
         justify-content: center;
         margin-bottom: 5rem;
         gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      @media (max-width: 768px) {
+        .center {
+          width: 100%;
+        }
+
+        .center h2 {
+          font-size: 1.8rem;
+        }
+
+        .center p {
+          font-size: 0.95rem;
+          text-wrap: wrap;
+          width: 30ch;
+          margin: 0 auto;
+        }
+
+        .downloads {
+          display: grid;
+          grid-template-columns: repeat(2, max-content);
+          gap: 1rem;
+          padding: 0 1rem;
+          max-width: 500px;
+          margin: 0 auto 3rem auto;
+        }
+
+        a {
+          max-width: 100%;
+          padding: 10px 0.5rem;
+          margin: 0;
+          justify-content: center;
+        }
+
+        a svg {
+          width: 35px;
+          height: 35px;
+        }
+
+        .download_text {
+          font-size: 10px;
+        }
+
+        .download_title {
+          font-size: 1.1rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .center {
+        }
+
+        .center h2 {
+          font-size: 1.5rem;
+          margin-top: 3rem;
+        }
+
+        .center p {
+          font-size: 0.85rem;
+          margin-bottom: 2rem;
+        }
+
+        .downloads {
+          gap: 0.75rem;
+          padding: 0 0.5rem;
+        }
+
+        a {
+          padding: 8px 0.3rem;
+          max-height: 50px;
+        }
+
+        a svg {
+          width: 30px;
+          height: 30px;
+          margin-right: 5px;
+        }
+
+        .download_text {
+          font-size: 9px;
+        }
+
+        .download_title {
+          font-size: 1rem;
+        }
       }
     </style>
   </main>
