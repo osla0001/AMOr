@@ -17,12 +17,27 @@ const title = "AMOr";
       <div class="hero-content">
         <video src="/images/" autoplay muted loop></video>
       </div>
+      <div class="scroll-indicator">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="40"
+          height="40"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="7 13 12 18 17 13"></polyline>
+          <polyline points="7 6 12 11 17 6"></polyline>
+        </svg>
+      </div>
     </section>
     <Section
       title="EXPLORE"
       image="/images/explore.webp"
       hasButton={false}
       order="-1"
+      id="start"
       >Discover the hidden culinary treasures in the area as you navigate an
       interactive map filled with local eateries, each offering unique flavors
       and stories waiting to be uncovered. Every corner you explore brings new
@@ -312,7 +327,55 @@ const title = "AMOr";
         flex-wrap: wrap;
       }
 
+      .scroll-indicator {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 3;
+        animation: bounce 2s infinite;
+        cursor: pointer;
+      }
+
+      .scroll-indicator svg {
+        stroke: var(--bun-1);
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      }
+
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateX(-50%) translateY(0);
+        }
+        40% {
+          transform: translateX(-50%) translateY(-10px);
+        }
+        60% {
+          transform: translateX(-50%) translateY(-5px);
+        }
+      }
+
       @media (max-width: 768px) {
+        .hero {
+          height: calc(100vh - 60px);
+        }
+
+        .video-placeholder video {
+          max-width: 80%;
+        }
+
+        .scroll-indicator {
+          bottom: 1.5rem;
+        }
+
+        .scroll-indicator svg {
+          width: 32px;
+          height: 32px;
+        }
+
         .center {
           width: 100%;
         }
@@ -359,6 +422,23 @@ const title = "AMOr";
       }
 
       @media (max-width: 480px) {
+        .hero {
+          height: calc(100vh - 50px);
+        }
+
+        .video-placeholder video {
+          max-width: 90%;
+        }
+
+        .scroll-indicator {
+          bottom: 1rem;
+        }
+
+        .scroll-indicator svg {
+          width: 28px;
+          height: 28px;
+        }
+
         .center {
         }
 
@@ -399,3 +479,17 @@ const title = "AMOr";
     </style>
   </main>
 </Layout>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const scrollIndicator = document.querySelector(".scroll-indicator");
+    if (scrollIndicator) {
+      scrollIndicator.addEventListener("click", () => {
+        const startSection = document.getElementById("start");
+        if (startSection) {
+          startSection.scrollIntoView({ behavior: "smooth" });
+        }
+      });
+    }
+  });
+</script>

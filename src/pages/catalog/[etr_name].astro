@@ -102,7 +102,19 @@ const eatery = {
 
 <Layout title=`AMOR - ${eatery.name}`>
   <main>
-    <a href="#" class="back-link" id="backLink">⬅ Go back</a>
+    <a href="#" class="back-link" id="backLink">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      Go back
+    </a>
     <h2>{eatery.name}</h2>
     <div class="image_container">
       <img
@@ -337,7 +349,9 @@ const eatery = {
   }
 
   .back-link {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.1rem;
     font-family: "Commissioner", sans-serif;
     font-size: 16px;
     margin-bottom: 1rem;

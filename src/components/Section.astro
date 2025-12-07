@@ -10,10 +10,11 @@ const {
   button,
   button_link,
   hasButton = true,
+  id,
 } = Astro.props;
 ---
 
-<section style=`background-color: ${background};`>
+<section id={id} style=`background-color: ${background};`>
   <div class="container">
     <div>
       <h2>{title}</h2>
