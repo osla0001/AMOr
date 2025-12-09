@@ -2,11 +2,14 @@
 //@ts-nocheck
 import Layout from "../layouts/Layout.astro";
 import Section from "../components/Section.astro";
+
+const description =
+  "Learn about AMOr's mission to support local restaurants and strengthen communities. Discover why shopping local matters and how we're creating a movement for authentic food experiences.";
 import Button from "../components/Button.astro";
 const title = "AMOr";
 ---
 
-<Layout title="AMOr - About">
+<Layout title="AMOr - About" description={description}>
   <main>
     <div class="center">
       <h2>ABOUT US</h2>
@@ -227,7 +230,7 @@ const title = "AMOr";
         </div>
         <div class="happen_card">
           <img src="/images/map_index.webp" alt="" />
-          <h5>Catalog and Mapp</h5>
+          <h5>Catalog and Map</h5>
           <p>Catalog with local businesses. Check your area using map.</p>
           <Button color="var(--bun-6)" href="/catalog">Open Catalog</Button>
         </div>

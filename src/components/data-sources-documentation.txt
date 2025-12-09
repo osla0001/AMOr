@@ -1,0 +1,152 @@
+DATA SOURCES, APIs, AND EXTERNAL SERVICES
+==========================================
+
+1. GOOGLE MAPS JAVASCRIPT API
+------------------------------
+Link: https://developers.google.com/maps/documentation/javascript
+API Key: AIzaSyANajqylsntCiysdQbDUp9eo6fheepBhyw
+Version: Beta (v=beta) with Maps and Marker libraries
+
+Licensing & Attribution:
+- Subject to Google Maps Platform Terms of Service
+- Requires Google attribution on map displays
+- Usage tracked and billed according to Google Cloud pricing
+
+Refresh Rate: Real-time / on-demand loading
+Update Frequency: N/A (map tiles and geocoding services updated by Google)
+
+Description of Use:
+The Google Maps JavaScript API powers the interactive map feature on the /map page. 
+It displays restaurant locations as custom markers (pink pins) on a fully interactive 
+map of Lisbon. Users can click markers to view restaurant details in a sliding catalog 
+panel. The API also provides the Search API (https://www.google.com/maps/search/?api=1) 
+used in restaurant detail pages to link directly to Google Maps for directions.
+
+
+2. MYSQL DATABASE (GOOGLE CLOUD SQL)
+-------------------------------------
+Host: 34.175.101.196:3306
+Database Name: munchmap
+Connection Library: mysql2/promise (Node.js)
+
+Licensing & Attribution:
+- MySQL Community Edition (GPL License)
+- Hosted on Google Cloud Platform (subject to GCP Terms of Service)
+- Database content is proprietary to AMOr project
+
+Refresh Rate: Real-time database queries
+Update Frequency: Dynamic - updated as restaurant data is added/modified by administrators
+
+Description of Use:
+The MySQL database serves as the central data repository for all restaurant information. 
+It contains multiple tables:
+
+- eatery table: Core restaurant data (name, address, coordinates, phone, email, 
+  opening hours, background story, amenities like WiFi, outdoor seating, pet-friendly 
+  status, LGBT+ friendly, women-owned, local suppliers, payment methods, price range)
+- cuisine table: Cuisine types and categories
+- eatery_cuisine junction table: Many-to-many relationships between restaurants and cuisines
+
+The database is queried across multiple pages:
+- /catalog - Lists all restaurants with search and filter functionality
+- /catalog/[etr_name] - Individual restaurant detail pages with complete information
+- /map - Provides coordinates and basic info for map markers
+- / (homepage) - IndexCatalog component displays featured restaurants
+- /api/eateries - Internal API endpoint for fetching restaurant data with client-side caching
+
+Connection pooling is implemented for performance with 10 concurrent connections and 
+60-second timeouts to handle network latency to the Google Cloud SQL instance.
+
+
+3. GOOGLE FONTS API
+--------------------
+Link: https://fonts.googleapis.com/
+Font Family: Commissioner (weights 100-900)
+
+Licensing & Attribution:
+- Open Font License (OFL) - free to use commercially
+- No attribution required
+- Hosted and served by Google Fonts CDN
+
+Refresh Rate: Cached by browser (long-term caching via CDN)
+Update Frequency: Static font files
+
+Description of Use:
+The Commissioner font family is used throughout the application for body text, 
+headings (h2-h5), paragraphs, and UI elements. It provides a clean, modern, 
+professional appearance consistent with the brand identity. The font is loaded 
+with variable weights (100-900) to support different font-weights across the 
+design system.
+
+
+4. CDN FONTS - MILKY COFFEE
+----------------------------
+Link: https://fonts.cdnfonts.com/css/milky-coffee
+Font Family: Milky Coffee
+
+Licensing & Attribution:
+- License terms specified on CDNFonts.com
+- Free for personal and commercial use (verify specific license)
+- Served via CDNFonts CDN
+
+Refresh Rate: Cached by browser
+Update Frequency: Static font files
+
+Description of Use:
+The Milky Coffee font serves as the primary display font for the AMOr brand. 
+It is used for:
+- Main headings (h1 elements)
+- Large display titles (h4 elements for decorative purposes)
+- Logo and branding elements
+- Hero section titles
+
+This decorative font creates the playful, friendly, and approachable brand 
+personality that distinguishes AMOr from competitors.
+
+
+5. INTERNAL REST API - EATERIES ENDPOINT
+-----------------------------------------
+Endpoint: /api/eateries
+Type: Custom Astro API Route
+Method: GET
+
+Licensing & Attribution:
+- Proprietary to AMOr project
+- Internal use only
+
+Refresh Rate: Real-time with 1-minute client-side cache
+Update Frequency: Queries MySQL database on each request (after cache expires)
+
+Description of Use:
+This internal API endpoint serves as a data layer between the frontend map 
+interface and the MySQL database. It:
+- Fetches all restaurant data with cuisine information
+- Groups multiple cuisines per restaurant (handles many-to-many relationships)
+- Returns JSON formatted data with coordinates for map rendering
+- Implements CORS headers for cross-origin requests
+- Provides error handling for database connection failures
+
+The endpoint is consumed by the /map page JavaScript to dynamically populate 
+map markers and catalog entries. Client-side caching (localStorage with timestamps) 
+reduces unnecessary database queries and improves performance.
+
+
+SUMMARY TABLE
+=============
+
+Source                  | Type            | Use Case                    | Update Frequency      | License
+------------------------|-----------------|-----------------------------|-----------------------|------------------------
+Google Maps JS API      | External API    | Interactive map display     | Real-time             | Google Terms of Service
+MySQL Database          | Database        | Restaurant data storage     | Dynamic/Real-time     | GPL / Proprietary data
+Google Fonts            | Web Font API    | Body text & headings        | Static (cached)       | Open Font License
+CDN Fonts (Milky)       | Web Font CDN    | Display titles & branding   | Static (cached)       | CDNFonts License
+Internal Eateries API   | Internal REST   | Data layer for map          | Real-time + 1min cache| Proprietary
+
+
+TECHNICAL IMPLEMENTATION NOTES
+===============================
+- All external dependencies are loaded asynchronously to optimize page load performance
+- Database connections use connection pooling (10 connections) for scalability
+- Font preconnect hints are used to reduce latency for Google Fonts
+- API keys and database credentials are stored in environment variables for security
+- Error handling is implemented for all external service calls to ensure graceful degradation

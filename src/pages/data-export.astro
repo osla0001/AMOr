@@ -1,0 +1,436 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+const description =
+  "Live JSON data feed for Unity integration - Complete restaurant database export";
+---
+
+<Layout title="AMOr - JSON Data Export" description={description}>
+  <main>
+    <div class="container">
+      <h1>Restaurant Data Export</h1>
+      <p class="subtitle">Live JSON feed for Unity integration</p>
+
+      <div class="info-box">
+        <h3>API Endpoint</h3>
+        <div class="endpoint-url">
+          <code id="apiUrl">Loading...</code>
+          <button class="copy-btn" id="copyBtn">Copy URL</button>
+        </div>
+        <p class="info-text">Use this URL in Unity to fetch restaurant data</p>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="refreshBtn">🔄 Refresh Data</button>
+        <button class="btn btn-secondary" id="downloadBtn"
+          >⬇️ Download JSON</button
+        >
+        <button class="btn btn-secondary" id="toggleBtn">👁️ Toggle View</button>
+      </div>
+
+      <div class="stats" id="stats">
+        <div class="stat-item">
+          <span class="stat-label">Total Restaurants:</span>
+          <span class="stat-value" id="totalCount">-</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Last Updated:</span>
+          <span class="stat-value" id="lastUpdated">-</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Data Size:</span>
+          <span class="stat-value" id="dataSize">-</span>
+        </div>
+      </div>
+
+      <div class="json-container">
+        <div class="loading" id="loading">Loading data...</div>
+        <pre id="jsonOutput" style="display: none;"></pre>
+        <div id="error" class="error" style="display: none;"></div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    min-height: calc(100vh - 80px);
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--bun-1) 0%, var(--bun-2) 100%);
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  h1 {
+    color: var(--patty-base);
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 3rem;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: var(--patty-4);
+    margin-bottom: 2rem;
+    font-size: 1.2rem;
+  }
+
+  .info-box {
+    background: var(--bun-1);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 2px solid var(--bun-3);
+  }
+
+  .info-box h3 {
+    margin-top: 0;
+    color: var(--patty-base);
+  }
+
+  .endpoint-url {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin: 1rem 0;
+  }
+
+  .endpoint-url code {
+    flex: 1;
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: "Courier New", monospace;
+    font-size: 0.9rem;
+    color: var(--ketchup-base);
+    word-break: break-all;
+    border: 1px solid var(--bun-4);
+  }
+
+  .copy-btn {
+    padding: 0.75rem 1.5rem;
+    background: var(--lettuce-3);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+    white-space: nowrap;
+  }
+
+  .copy-btn:hover {
+    background: var(--lettuce-5);
+  }
+
+  .copy-btn.copied {
+    background: var(--ketchup-base);
+  }
+
+  .info-text {
+    margin: 0;
+    color: var(--patty-4);
+    font-size: 0.9rem;
+  }
+
+  .actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: "Commissioner", sans-serif;
+  }
+
+  .btn-primary {
+    background: var(--ketchup-base);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--ketchup-3);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    background: var(--bun-4);
+    color: var(--patty-base);
+  }
+
+  .btn-secondary:hover {
+    background: var(--bun-5);
+    transform: translateY(-2px);
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-item {
+    background: var(--lettuce-1);
+    padding: 1rem;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 2px solid var(--lettuce-3);
+  }
+
+  .stat-label {
+    font-weight: 600;
+    color: var(--patty-5);
+  }
+
+  .stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--lettuce-5);
+  }
+
+  .json-container {
+    background: #1e1e1e;
+    border-radius: 10px;
+    padding: 1.5rem;
+    max-height: 600px;
+    overflow: auto;
+    position: relative;
+  }
+
+  .loading {
+    color: var(--bun-1);
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+  }
+
+  #jsonOutput {
+    margin: 0;
+    color: #d4d4d4;
+    font-family: "Courier New", monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .error {
+    background: #ff000020;
+    border: 2px solid #ff0000;
+    color: #ff4444;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .json-container::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  .json-container::-webkit-scrollbar-track {
+    background: #2e2e2e;
+    border-radius: 10px;
+  }
+
+  .json-container::-webkit-scrollbar-thumb {
+    background: var(--lettuce-3);
+    border-radius: 10px;
+  }
+
+  .json-container::-webkit-scrollbar-thumb:hover {
+    background: var(--lettuce-5);
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      padding: 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    .endpoint-url {
+      flex-direction: column;
+    }
+
+    .copy-btn {
+      width: 100%;
+    }
+
+    .actions {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+    }
+
+    .stats {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  let jsonData: any = null;
+  let isExpanded = true;
+
+  // Get API URL
+  const apiUrl = `${window.location.origin}/api/restaurants.json`;
+  document.getElementById("apiUrl")!.textContent = apiUrl;
+
+  // Copy URL to clipboard
+  document.getElementById("copyBtn")?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(apiUrl);
+      const btn = document.getElementById("copyBtn") as HTMLButtonElement;
+      const originalText = btn.textContent;
+      btn.textContent = "✓ Copied!";
+      btn.classList.add("copied");
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.classList.remove("copied");
+      }, 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  });
+
+  // Fetch data from API
+  async function fetchData() {
+    const loading = document.getElementById("loading")!;
+    const output = document.getElementById("jsonOutput")!;
+    const error = document.getElementById("error")!;
+
+    loading.style.display = "block";
+    output.style.display = "none";
+    error.style.display = "none";
+
+    try {
+      const response = await fetch(apiUrl);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      jsonData = await response.json();
+
+      // Update stats
+      document.getElementById("totalCount")!.textContent =
+        jsonData.metadata.total_count;
+      document.getElementById("lastUpdated")!.textContent = new Date(
+        jsonData.metadata.generated_at,
+      ).toLocaleString("da-DK");
+
+      const dataSize = new Blob([JSON.stringify(jsonData)]).size;
+      document.getElementById("dataSize")!.textContent =
+        `${(dataSize / 1024).toFixed(2)} KB`;
+
+      // Display JSON
+      loading.style.display = "none";
+      output.style.display = "block";
+      output.textContent = JSON.stringify(jsonData, null, 2);
+
+      // Syntax highlighting
+      highlightJSON(output);
+    } catch (err) {
+      loading.style.display = "none";
+      error.style.display = "block";
+      error.textContent = `Error: ${err instanceof Error ? err.message : "Unknown error"}`;
+    }
+  }
+
+  // Simple JSON syntax highlighting
+  function highlightJSON(element: HTMLElement) {
+    let json = element.textContent || "";
+
+    json = json.replace(
+      /"([^"]+)":/g,
+      '<span style="color: #9cdcfe;">"$1"</span>:',
+    );
+    json = json.replace(
+      /: "([^"]*)"/g,
+      ': <span style="color: #ce9178;">"$1"</span>',
+    );
+    json = json.replace(
+      /: (\d+)/g,
+      ': <span style="color: #b5cea8;">$1</span>',
+    );
+    json = json.replace(
+      /: (true|false)/g,
+      ': <span style="color: #569cd6;">$1</span>',
+    );
+    json = json.replace(
+      /: (null)/g,
+      ': <span style="color: #569cd6;">$1</span>',
+    );
+
+    element.innerHTML = json;
+  }
+
+  // Refresh button
+  document.getElementById("refreshBtn")?.addEventListener("click", fetchData);
+
+  // Download JSON
+  document.getElementById("downloadBtn")?.addEventListener("click", () => {
+    if (!jsonData) return;
+
+    const dataStr = JSON.stringify(jsonData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `amor-restaurants-${new Date().toISOString().split("T")[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Toggle view (expand/collapse)
+  document.getElementById("toggleBtn")?.addEventListener("click", () => {
+    const output = document.getElementById("jsonOutput")!;
+    const container = document.querySelector(".json-container") as HTMLElement;
+
+    isExpanded = !isExpanded;
+
+    if (isExpanded) {
+      container.style.maxHeight = "600px";
+      if (jsonData) {
+        output.textContent = JSON.stringify(jsonData, null, 2);
+        highlightJSON(output);
+      }
+    } else {
+      container.style.maxHeight = "200px";
+      if (jsonData) {
+        output.textContent =
+          JSON.stringify(jsonData.metadata, null, 2) +
+          "\n\n// ... " +
+          jsonData.restaurants.length +
+          " restaurants";
+        highlightJSON(output);
+      }
+    }
+  });
+
+  // Load data on page load
+  fetchData();
+</script>

@@ -5,6 +5,9 @@ import Layout from "../layouts/Layout.astro";
 import Eatery from "../components/map/eatery.astro";
 import mysql from "mysql2/promise";
 
+const description =
+  "Explore Lisbon's local restaurants on our interactive map. Find neighborhood eateries, view locations, and plan your culinary journey to support local businesses.";
+
 // Fetch eateries data directly from database server-side
 let initialEateries = [];
 try {
@@ -66,7 +69,12 @@ try {
 }
 ---
 
-<Layout title="AMOr - Map" includeGoogleMaps={true} showFooter={false}>
+<Layout
+  title="AMOr - Map"
+  description={description}
+  includeGoogleMaps={true}
+  showFooter={false}
+>
   <main>
     <button class="back-to-map" id="backToMap">
       <svg

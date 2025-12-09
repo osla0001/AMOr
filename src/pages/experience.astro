@@ -3,10 +3,13 @@
 import Layout from "../layouts/Layout.astro";
 import Section from "../components/Section.astro";
 import Button from "../components/Button.astro";
+
 const title = "AMOr";
+const description =
+  "Download AMOr's interactive food game. Explore local restaurants in a 3D world, collect achievements, discover hidden culinary gems, and support neighborhood eateries in Lisbon.";
 ---
 
-<Layout title="AMOr - Game">
+<Layout title="AMOr - Game" description={description}>
   <main>
     <section class="hero">
       <!-- Video placeholder - will be replaced with video later -->
@@ -77,7 +80,7 @@ const title = "AMOr";
     </Section>
     <section>
       <div class="center">
-        <h2 style="margin-top: 5rem;">Download Game</h2>
+        <h2 style="margin-top: 5rem;">DOWNLOAD GAME</h2>
         <p style="margin-bottom: 3rem;">
           Help us share love towards food and support local eateries right now!
         </p>

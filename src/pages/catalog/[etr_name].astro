@@ -98,9 +98,11 @@ const eatery = {
   phone: firstRow.etr_phone || "Not available",
   email: firstRow.etr_email || "Not available",
 };
+
+const description = `Discover ${eatery.name} in Lisbon. ${eatery.cuisines} restaurant located at ${eatery.address}. ${eatery.bg_stry.substring(0, 100)}...`;
 ---
 
-<Layout title=`AMOR - ${eatery.name}`>
+<Layout title=`AMOR - ${eatery.name}` description={description}>
   <main>
     <a href="#" class="back-link" id="backLink">
       <svg

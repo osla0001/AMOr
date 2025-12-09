@@ -5,11 +5,13 @@ import Section from "../components/Section.astro";
 import IndexCatalog from "../components/IndexCatalog.astro";
 
 const title = "AMOr";
+const description =
+  "Discover local restaurants and support neighborhood eateries in Lisbon. Play our interactive food game, explore the city map, and connect with authentic local dining experiences.";
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
-<Layout title="AMOr - Home">
+<Layout title="AMOr - Home" description={description}>
   <main>
     <section class="hero">
       <!-- Video placeholder - will be replaced with video later -->
