@@ -36,6 +36,10 @@ import Footer from "../components/Footer.astro";
       rel="stylesheet"
     />
 
+    <!-- AOS - Animate On Scroll -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/css/aos-custom.css" />
+
     <!-- Google Maps -->
     {
       includeGoogleMaps && (
@@ -70,6 +74,18 @@ import Footer from "../components/Footer.astro";
     {showFooter && <Footer />}
   </body>
 </html>
+
+<script>
+  import AOS from "aos";
+
+  // Initialize AOS
+  AOS.init({
+    duration: 800,
+    easing: "ease-in-out",
+    once: true,
+    offset: 100,
+  });
+</script>
 
 <style is:global>
   @import "../css/style.css";

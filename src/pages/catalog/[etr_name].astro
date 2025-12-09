@@ -130,6 +130,7 @@ const description = `Discover ${eatery.name} in Lisbon. ${eatery.cuisines} resta
       image={`/eatery/${eatery.id}_1.webp`}
       order="-1"
       hasButton={false}
+      aos="fade-right"
       ><b>Kitchen:</b>
       {eatery.cuisines}
       <br />
@@ -152,9 +153,10 @@ const description = `Discover ${eatery.name} in Lisbon. ${eatery.cuisines} resta
       title="ABOUT"
       image={`/eatery/${eatery.id}_2.webp`}
       hasButton={false}
+      aos="fade-left"
       >{eatery.bg_stry}
     </SectionSingleView>
-    <section class="dishes">
+    <section class="dishes" data-aos="fade-right">
       <div class="container">
         <div class="center">
           <h2>BEST DISHES</h2>
@@ -183,6 +185,8 @@ const description = `Discover ${eatery.name} in Lisbon. ${eatery.cuisines} resta
           }
         </div>
       </div>
+    </section>
+    <section data-aos="fade-left">
       <div class="center">
         <h2>MORE DETAILS</h2>
         <div class="icons">
