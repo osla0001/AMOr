@@ -6,16 +6,13 @@ import mysql from "mysql2/promise";
 // Connection to Cloud SQL
 const db = await mysql.createPool({
   host: import.meta.env.DB_HOST || "34.175.101.196",
-  port: parseInt(import.meta.env.DB_PORT || "3306"),
+  port: Number(import.meta.env.DB_PORT || "3306"),
   user: import.meta.env.DB_USER || "root",
   password: import.meta.env.DB_PASSWORD || 'MvbsQB4|"Otq$\\d8',
   database: import.meta.env.DB_NAME || "munchmap",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  connectTimeout: 60000,
-  acquireTimeout: 60000,
-  timeout: 60000,
 });
 
 export const GET: APIRoute = async () => {
