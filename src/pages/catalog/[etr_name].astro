@@ -82,8 +82,8 @@ try {
 const eatery = {
   id: firstRow.etr_id,
   name: firstRow.etr_name,
-  address: firstRow.etr_address || "Ingen adresse",
-  cuisines: cuisines.length > 0 ? cuisines.join(", ") : "Ikke angivet",
+  address: firstRow.etr_address || "Not available",
+  cuisines: cuisines.length > 0 ? cuisines.join(", ") : "Not available",
   menu_highlights: menuHighlights,
   lgbt_friendly: firstRow.etr_lgbt_friendly || false,
   women_owned: firstRow.etr_women_owned || false,
@@ -368,6 +368,7 @@ const description = `Discover ${eatery.name} in Lisbon. ${eatery.cuisines} resta
 
   h2 {
     text-align: center;
+    text-transform: uppercase;
   }
 
   .image_container {
