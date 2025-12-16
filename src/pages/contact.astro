@@ -322,90 +322,106 @@ const description =
   }
 </style>
 
-<script>
+<script is:inline>
   // Custom dropdown functionality
-  const customSelect = document.querySelector(".custom-select") as HTMLElement;
-  const selectSelected = document.querySelector(
-    ".select-selected",
-  ) as HTMLElement;
-  const selectItems = document.querySelector(".select-items") as HTMLElement;
-  const hiddenInput = document.getElementById("topic") as HTMLInputElement;
+  document.addEventListener("DOMContentLoaded", () => {
+    const customSelect = document.querySelector(".custom-select");
+    const selectSelected = document.querySelector(".select-selected");
+    const selectItems = document.querySelector(".select-items");
+    const hiddenInput = document.getElementById("topic");
 
-  // Toggle dropdown
-  selectSelected.addEventListener("click", (e) => {
-    e.stopPropagation();
-    selectItems.classList.toggle("select-hide");
-    selectSelected.classList.toggle("select-arrow-active");
-  });
+    if (!customSelect || !selectSelected || !selectItems || !hiddenInput) {
+      console.error("Contact form elements not found");
+      return;
+    }
 
-  // Handle option selection
-  const options = selectItems.querySelectorAll("div");
-  options.forEach((option) => {
-    option.addEventListener("click", (e) => {
+    // Toggle dropdown
+    selectSelected.addEventListener("click", (e) => {
       e.stopPropagation();
-      const value = (option as HTMLElement).getAttribute("data-value") || "";
-      const text = option.textContent || "";
+      selectItems.classList.toggle("select-hide");
+      selectSelected.classList.toggle("select-arrow-active");
+    });
 
-      // Update selected value
-      selectSelected.textContent = text;
-      selectSelected.classList.add("active");
-      hiddenInput.value = value;
+    // Handle option selection
+    const options = selectItems.querySelectorAll("div");
+    options.forEach((option) => {
+      option.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const value = option.getAttribute("data-value") || "";
+        const text = option.textContent || "";
 
-      // Update selected styling
-      options.forEach((opt) => opt.classList.remove("same-as-selected"));
-      option.classList.add("same-as-selected");
+        // Update selected value
+        selectSelected.textContent = text;
+        selectSelected.classList.add("active");
+        hiddenInput.value = value;
 
-      // Close dropdown
+        // Update selected styling
+        options.forEach((opt) => opt.classList.remove("same-as-selected"));
+        option.classList.add("same-as-selected");
+
+        // Close dropdown
+        selectItems.classList.add("select-hide");
+        selectSelected.classList.remove("select-arrow-active");
+      });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", () => {
       selectItems.classList.add("select-hide");
       selectSelected.classList.remove("select-arrow-active");
     });
-  });
 
-  // Close dropdown when clicking outside
-  document.addEventListener("click", () => {
-    selectItems.classList.add("select-hide");
-    selectSelected.classList.remove("select-arrow-active");
-  });
+    // Form submission
+    const form = document.getElementById("contactForm");
+    const responseDiv = document.getElementById("response");
 
-  // Form submission
-  const form = document.getElementById("contactForm") as HTMLFormElement;
-  const responseDiv = document.getElementById("response") as HTMLDivElement;
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(form);
-    const button = form.querySelector("button") as HTMLButtonElement;
-
-    // Disable button during submission
-    button.disabled = true;
-    button.textContent = "Sending...";
-
-    try {
-      const response = await fetch("/api/support", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        responseDiv.className = "response-message success";
-        responseDiv.textContent =
-          "Your message has been sent! We'll get back to you as soon as possible.";
-        form.reset();
-        // Reset custom select
-        selectSelected.textContent = "Topic";
-        selectSelected.classList.remove("active");
-        hiddenInput.value = "";
-        options.forEach((opt) => opt.classList.remove("same-as-selected"));
-      } else {
-        throw new Error("Submission error");
-      }
-    } catch (error) {
-      responseDiv.className = "response-message error";
-      responseDiv.textContent = "An error occurred. Please try again later.";
-    } finally {
-      button.disabled = false;
-      button.textContent = "Send Message";
+    if (!form || !responseDiv) {
+      console.error("Form or response div not found");
+      return;
     }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const button = form.querySelector("button");
+
+      if (!button) return;
+
+      // Disable button during submission
+      button.disabled = true;
+      button.textContent = "Sending...";
+
+      try {
+        const response = await fetch("/api/support", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          responseDiv.className = "response-message success";
+          responseDiv.textContent =
+            "Your message has been sent! We'll get back to you as soon as possible.";
+          form.reset();
+          // Reset custom select
+          selectSelected.textContent = "Topic";
+          selectSelected.classList.remove("active");
+          hiddenInput.value = "";
+          options.forEach((opt) => opt.classList.remove("same-as-selected"));
+        } else {
+          throw new Error(result.error || "Submission error");
+        }
+      } catch (error) {
+        responseDiv.className = "response-message error";
+        responseDiv.textContent =
+          error.message || "An error occurred. Please try again later.";
+        console.error("Form submission error:", error);
+      } finally {
+        button.disabled = false;
+        button.textContent = "Send Message";
+      }
+    });
   });
 </script>
